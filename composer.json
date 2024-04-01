@@ -1,0 +1,50 @@
+{
+    "name": "directorytree/bartender",
+    "description": "An opinionated OAuth handler using Laravel Socialite.",
+    "keywords": [
+        "oauth"
+    ],
+    "authors": [
+        {
+            "name": "Steve Bauman",
+            "email": "steven_bauman@outlook.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=8.0",
+        "illuminate/support": "^10.0|^11.0",
+        "laravel/socialite": "^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0|^10.0",
+        "orchestra/testbench": "^8.0|^9.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "archive": {
+        "exclude": [
+            "/tests"
+        ]
+    },
+    "autoload": {
+        "psr-4": {
+            "DirectoryTree\\Bartender\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DirectoryTree\\Bartender\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "BartenderServiceProvider"
+            ],
+            "aliases": {
+                "Bartender": "DirectoryTree\\Bartender\\Facades\\Bartender"
+            }
+        }
+    }
+}
