@@ -1,4 +1,6 @@
-<h1 align="center">Bartender</h1>
+<p align="center">
+<img src="https://github.com/DirectoryTree/Bartender/blob/master/art/logo.svg" width="200">
+</p>
 
 <p align="center">
 An opinionated OAuth handler using Laravel Socialite.

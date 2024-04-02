@@ -2,32 +2,30 @@
 
 namespace DirectoryTree\Bartender\Tests;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Orchestra\Testbench\Attributes\WithEnv;
+use Orchestra\Testbench\Attributes\WithMigration;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use DirectoryTree\Bartender\BartenderServiceProvider;
-use function Orchestra\Testbench\artisan;
+use function Orchestra\Testbench\laravel_migration_path;
 use function Orchestra\Testbench\workbench_path;
 
 class TestCase extends BaseTestCase
 {
-    use DatabaseMigrations;
+    /**
+     * Define environment setup.
+     */
+    protected function defineEnvironment($app): void
+    {
+        $app['config']->set('database.default', 'testing');
+    }
 
     /**
      * Define database migrations.
      */
     protected function defineDatabaseMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-    }
-
-    protected function getEnvironmentSetUp($app): void
-    {
-        $app['config']->set('database.default', 'testbench');
-        $app['config']->set('database.connections.testbench', [
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-        ]);
+        $this->loadMigrationsFrom(laravel_migration_path('/'));
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     /**

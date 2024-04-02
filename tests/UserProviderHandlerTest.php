@@ -1,50 +1,83 @@
 <?php
 
-namespace DirectoryTree\Bartender\Tests;
-
-use Exception;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
+use DirectoryTree\Bartender\ProviderQuery;
+use DirectoryTree\Bartender\ProviderRedirector;
+use DirectoryTree\Bartender\Tests\User;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use DirectoryTree\Bartender\UserProviderHandler;
 
-class UserProviderHandlerTest extends TestCase
-{
-    public function testItCanRedirectToProvider()
-    {
-        $provider = mock(Provider::class);
+it('can redirect to provider', function () {
+    $provider = mock(Provider::class);
 
-        $provider->shouldReceive('redirect')->andReturn($redirect = redirect('/'));
+    $provider->shouldReceive('redirect')->andReturn($redirect = redirect('/'));
 
-        $this->assertEquals($redirect, (new UserProviderHandler)->redirect($provider, 'foo'));
-    }
+    expect(app(UserProviderHandler::class)->redirect($provider, 'foo'))->toBe($redirect);
+});
 
-    public function testItCanHandleExceptionWhenUserCannotBeAuthenticated()
-    {
-        $provider = mock(Provider::class);
+it('can handle exception when user cannot be authenticated', function () {
+    $provider = mock(Provider::class);
 
-        $provider->shouldReceive('user')->once()->andThrow(Exception::class);
+    $provider->shouldReceive('user')->once()->andThrow(Exception::class);
 
-        $this->assertInstanceOf(RedirectResponse::class, (new UserProviderHandler)->callback($provider, 'foo'));
-    }
+    $this->mock(ProviderRedirector::class, function ($mock) {
+        $mock->shouldReceive('unableToAuthenticateUser')->once()->andReturn(redirect('/'));
+    });
 
-    public function testItCanHandleWhenUserAlreadyExists()
-    {
-        $this->artisan('migrate:fresh');
-        dd(DB::table('users')->get());
-        $provider = mock(Provider::class);
+    app(UserProviderHandler::class)->callback($provider, 'foo');
+});
 
-        $socialite = new SocialiteUser();
+it('can handle when user already exists', function () {
+    $provider = $this->mock(Provider::class);
+    $provider->shouldReceive('user')->once()->andReturn(new SocialiteUser());
 
-        DB::table('users')->get();
+    $this->mock(ProviderQuery::class, function ($mock) {
+        $mock->shouldReceive('exists')->once()->andReturn(true);
+    });
 
-        User::create();
+    $this->mock(ProviderRedirector::class, function ($mock) {
+        $mock->shouldReceive('userAlreadyExists')->once()->andReturn(redirect('/'));
+    });
 
-        $provider->shouldReceive('user')->once()->andReturn($socialite);
+    app(UserProviderHandler::class)->callback($provider, 'foo');
+});
 
-        (new UserProviderHandler)->callback($provider, 'foo');
+it('can handle exception when unable to create or update user', function () {
+    $socialite = new SocialiteUser();
 
-        $provider->shouldReceive('user')->andReturn($socialite = mock());
-    }
-}
+    $provider = $this->mock(Provider::class);
+    $provider->shouldReceive('user')->once()->andReturn($socialite);
+
+    $this->mock(ProviderQuery::class, function ($mock) use ($socialite) {
+        $mock->shouldReceive('exists')->once()->andReturn(false);
+        $mock->shouldReceive('updateOrCreate')->once()->andThrow(Exception::class);
+    });
+
+    $this->mock(ProviderRedirector::class, function ($mock) {
+        $mock->shouldReceive('unableToCreateUser')->once()->andReturn(redirect('/'));
+    });
+
+    app(UserProviderHandler::class)->callback($provider, 'foo');
+});
+
+it('can authenticate user', function () {
+    $user = new User();
+    $socialite = new SocialiteUser();
+
+    $provider = $this->mock(Provider::class);
+    $provider->shouldReceive('user')->once()->andReturn($socialite);
+
+    $this->mock(ProviderQuery::class, function ($mock) use ($user) {
+        $mock->shouldReceive('exists')->once()->andReturn(false);
+        $mock->shouldReceive('updateOrCreate')->once()->andReturn($user);
+    });
+
+    $this->mock(ProviderRedirector::class, function ($mock) use ($socialite) {
+        $mock->shouldReceive('userAuthenticated')->once()->andReturn(redirect('/'));
+    });
+
+    Auth::shouldReceive('login')->once()->with($user);
+
+    app(UserProviderHandler::class)->callback($provider, 'foo');
+});

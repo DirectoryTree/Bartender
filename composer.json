@@ -18,7 +18,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0|^10.0",
-        "orchestra/testbench": "^8.0|^9.0"
+        "orchestra/testbench": "^8.0|^9.0",
+        "pestphp/pest": "^2.34"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -45,6 +46,11 @@
             "aliases": {
                 "Bartender": "DirectoryTree\\Bartender\\Facades\\Bartender"
             }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     }
 }

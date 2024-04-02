@@ -41,7 +41,7 @@ class BartenderManager
      *
      * @param class-string $handler
      */
-    public function register(string $driver, string $handler): void
+    public function register(string $driver, string $handler = UserProviderHandler::class): void
     {
         $this->handlers[$driver] = $handler;
     }

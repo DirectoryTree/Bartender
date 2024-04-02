@@ -16,6 +16,8 @@ return new class extends Migration
                 $table->string('provider_id')->nullable();
                 $table->string('provider_name')->nullable();
             });
+
+            $table->unique(['provider_id', 'provider_name']);
         });
     }
 
@@ -25,6 +27,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->dropUnique(['provider_id', 'provider_name']);
             $table->dropColumn(['provider_id', 'provider_name']);
         });
     }

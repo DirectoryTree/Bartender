@@ -12,6 +12,9 @@ class BartenderServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(BartenderManager::class);
+
+        $this->app->bind(ProviderQuery::class, UserProviderQuery::class);
+        $this->app->bind(ProviderRedirector::class, UserProviderRedirector::class);
     }
 
     /**
