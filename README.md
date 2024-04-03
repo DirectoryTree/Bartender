@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-An opinionated OAuth handler using Laravel Socialite.
+An opinionated social authentication handler using Laravel Socialite.
 </p>
 
 <p align="center">

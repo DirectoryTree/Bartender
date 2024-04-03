@@ -3,43 +3,53 @@
 namespace DirectoryTree\Bartender;
 
 use DirectoryTree\Bartender\Facades\Bartender;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 class UserProviderQuery implements ProviderQuery
 {
     /**
-     * Determine if a user with the same email already exists.
+     * Determine if the user already exists under a different provider.
      */
     public function exists(string $driver, SocialiteUser $user): bool
     {
         return $this->newUserQuery()
             ->where('email', '=', $user->email)
-            ->where('provider_id', '!=', $user->id)
             ->where('provider_name', '!=', $driver)
             ->exists();
     }
 
     /**
-     * Update or create a user from the given socialite user.
+     * Update or create the socialite user.
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
-        /** @var Authenticatable */
-        return $this->newUserQuery()->updateOrCreate([
+        $eloquent = $this->newUserQuery()->firstOrNew([
             'provider_id' => $user->id,
             'provider_name' => $driver,
-        ], array_merge([
-            'name' => $user->name,
-            'email' => $user->email,
-            'email_verified_at' => now(),
-            'password' => bcrypt(Str::random(32)),
-        ], $this->isUsingSoftDeletes(Bartender::user()) ? [
-            'deleted_at' => null,
-        ] : []));
+        ]);
+
+        $eloquent->fill(
+            array_merge([
+                'name' => $user->name,
+                'email' => $user->email,
+                'password' => $eloquent->password ?? bcrypt(Str::random()),
+            ],
+            $this->isUsingSoftDeletes(Bartender::user())
+                ? ['deleted_at' => null]
+                : [],
+            $this->isVerifyingEmails(Bartender::user())
+                ? ['email_verified_at' => $eloquent->email_verified_at ?? now()]
+                : []
+            )
+        )->save();
+
+        return $eloquent;
     }
 
     /**
@@ -61,6 +71,14 @@ class UserProviderQuery implements ProviderQuery
      */
     protected function isUsingSoftDeletes(Model $model): bool
     {
-        return method_exists($model, 'trashed');
+        return in_array(SoftDeletes::class, class_uses_recursive($model));
+    }
+
+    /**
+     * Determine if the given model is verifying emails.
+     */
+    protected function isVerifyingEmails(Model $model): bool
+    {
+        return in_array(MustVerifyEmail::class, class_uses_recursive($model));
     }
 }

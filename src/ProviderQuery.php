@@ -8,12 +8,12 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 interface ProviderQuery
 {
     /**
-     * Determine if a user with the same email already exists.
+     * Determine if the user already exists under a different provider.
      */
     public function exists(string $driver, SocialiteUser $user): bool;
 
     /**
-     * Update or create a user from the given socialite user.
+     * Update or create the socialite user.
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable;
 }
