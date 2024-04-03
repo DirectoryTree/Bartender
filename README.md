@@ -206,6 +206,7 @@ handler, you may create your own `ProviderRepository` implementation:
 ```php
 namespace App\Socialite;
 
+use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use DirectoryTree\Bartender\ProviderRepository;
 use Laravel\Socialite\Two\User as SocialiteUser;
@@ -217,7 +218,7 @@ class UserProviderRepository implements ProviderRepository
      */
     public function exists(string $driver, SocialiteUser $user): bool
     {
-        // ...
+        return User::withTrashed()->where('...')->exists();
     }
 
     /**
@@ -225,7 +226,11 @@ class UserProviderRepository implements ProviderRepository
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
-        // ...
+        $user = User::firstOrNew([
+            // ...
+        ]);
+        
+        return $user;
     }
 }
 ```
