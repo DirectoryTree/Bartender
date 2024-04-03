@@ -140,6 +140,8 @@ Almost everything can be swapped out in Bartender.
 If you would like to handle everything yourself for OAuth redirects and callbacks, you may create your own `ProviderHandler`:
 
 ```php
+// app/Socialite/UserProviderHandler.php
+
 namespace App\Socialite;
 
 use Illuminate\Http\Request;
@@ -183,6 +185,8 @@ Then, provide it into the second argument in the `Bartender::serve` method:
 ```php
 // app/Providers/AuthServiceProvider.php
 
+namespace App\Providers;
+
 use App\Socialite\UserProviderHandler;
 use DirectoryTree\Bartender\Facades\Bartender;
 
@@ -204,6 +208,8 @@ If you would like to customize the creation of the user in the default
 handler, you may create your own `ProviderRepository` implementation:
 
 ```php
+// app/Socialite/UserProviderRepository.php
+
 namespace App\Socialite;
 
 use App\Models\User;
@@ -238,6 +244,8 @@ class UserProviderRepository implements ProviderRepository
 Then, bind your implementation in the service container in your `AppServiceProvider`:
 
 ```php
+// app/Providers/AppServiceProvider.php
+
 namespace App\Providers;
 
 use App\Socialite\UserProviderRepository;
@@ -261,6 +269,8 @@ redirector and flash messages depending on the outcome of a OAuth callback,
 you can create your own `ProviderRedirector` implementation:
 
 ```php
+// app/Socialite/UserProviderRedirector.php
+
 namespace App\Socialite;
 
 class UserProviderRedirector implements ProviderRedirector
@@ -304,6 +314,8 @@ class UserProviderRedirector implements ProviderRedirector
 Then, bind your implementation in the service container in your `AppServiceProvider`:
 
 ```php
+// app/Providers/AppServiceProvider.php
+
 namespace App\Providers;
 
 use App\Socialite\UserProviderRedirector;
