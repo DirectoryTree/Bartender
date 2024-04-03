@@ -21,6 +21,7 @@ An opinionated way to authenticate users using Laravel Socialite.
 - [Installation](#installation)
 - [Setup](#setup)
 - [Usage](#usage)
+- [Extending & Customizing](#extending--customizing)
 
 ## Requirements
 
@@ -65,8 +66,8 @@ Bartender::routes();
 ```
 
 > [!important]
-> Remember to register this callback URL in your OAuth provider's settings.
-> For example, a Google OAuth callback would be `/auth/google/callback`.
+> Remember to register the callback URLs in your OAuth provider's settings.
+> For example, your Google OAuth callback would be `/auth/google/callback`.
 
 Set up your [Socialite Providers](https://socialiteproviders.com/) in your `services.php` configuration file:
 
