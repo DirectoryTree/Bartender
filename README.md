@@ -77,9 +77,15 @@ Set up your [Socialite Providers](https://socialiteproviders.com/) in your `serv
 return [
     // ...
 
-    'google' => ['...'],
+    'google' => [
+        // ...
+        'redirect' => '/auth/google/callback',
+    ],
     
-    'microsoft' => ['...'],
+    'microsoft' => [
+        // '...'
+        'redirect' => '/auth/microsoft/callback',
+    ],
 ];
 ```
 
