@@ -65,11 +65,10 @@ use DirectoryTree\Bartender\Facades\Bartender;
 Bartender::routes();
 ```
 
-> [!important]
-> Remember to register the callback URLs in your OAuth provider's settings.
-> For example, your Google OAuth callback would be `/auth/google/callback`.
-
 Set up your [Socialite Providers](https://socialiteproviders.com/) in your `services.php` configuration file:
+
+> [!important]
+> Remember to register the redirect URLs in your OAuth provider's settings.
 
 ```php
 // config/services.php
