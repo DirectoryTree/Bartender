@@ -82,7 +82,7 @@ return [
     ],
     
     'microsoft' => [
-        // '...'
+        // ...
         'redirect' => '/auth/microsoft/callback',
     ],
 ];
