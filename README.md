@@ -103,7 +103,7 @@ class AuthServiceProvider extends ServiceProvider
 {
     // ...
 
-    public function boot()
+    public function boot(): void
     {
         Bartender::serve('google');
         Bartender::serve('microsoft');
@@ -220,7 +220,7 @@ class AuthServiceProvider extends ServiceProvider
 {
     // ...
 
-    public function boot()
+    public function boot(): void
     {
         Bartender::serve('google', UserProviderHandler::class);
         Bartender::serve('microsoft', UserProviderHandler::class);
@@ -281,7 +281,7 @@ class AppServiceProvider extends ServiceProvider
 {
     // ...
 
-    public function register()
+    public function register(): void
     {
         $this->app->bind(ProviderRepository::class, UserProviderRepository::class);
     }
@@ -354,7 +354,7 @@ class AppServiceProvider extends ServiceProvider
 {
     // ...
 
-    public function register()
+    public function register(): void
     {
         $this->app->bind(ProviderRedirector::class, UserProviderRedirector::class);
     }
