@@ -1,6 +1,6 @@
 {
     "name": "directorytree/bartender",
-    "description": "An opinionated OAuth handler using Laravel Socialite.",
+    "description": "An opinionated way to authenticate users using Laravel Socialite.",
     "keywords": [
         "oauth"
     ],
