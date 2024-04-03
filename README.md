@@ -145,7 +145,7 @@ Direct your user to the `/auth/{driver}/redirect` route to authenticate with the
 ```
 
 Once the user successfully authenticates, they will be redirected to the `/auth/{driver}/callback` 
-route, which will automatically be create or update their application user account.
+route, which will automatically create or update their application user account.
 
 ### Soft Deletes
 
