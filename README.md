@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/DirectoryTree/Bartender/blob/master/art/logo.svg" width="200">
+<img src="https://github.com/DirectoryTree/Bartender/blob/master/art/logo.svg" width="250">
 </p>
 
 <p align="center">
