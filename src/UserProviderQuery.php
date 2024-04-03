@@ -36,14 +36,14 @@ class UserProviderQuery implements ProviderQuery
         $model = Bartender::user();
 
         $eloquent = $this->newUserQuery($model)->firstOrNew([
-            'provider_id' => $user->id,
+            'email' => $user->email,
             'provider_name' => $driver,
         ]);
 
         $eloquent->fill(
             array_merge([
                 'name' => $user->name,
-                'email' => $user->email,
+                'provider_id' => $user->id,
                 'password' => $eloquent->password ?? bcrypt(Str::random()),
             ],
             $this->isUsingSoftDeletes($model)
