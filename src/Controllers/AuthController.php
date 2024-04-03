@@ -3,19 +3,10 @@
 namespace DirectoryTree\Bartender\Controllers;
 
 use Illuminate\Http\RedirectResponse;
-use DirectoryTree\Bartender\BartenderManager;
 use DirectoryTree\Bartender\Facades\Bartender;
 
 class AuthController
 {
-    /**
-     * Constructor.
-     */
-    public function __construct(
-        protected BartenderManager $manager
-    ) {
-    }
-
     /**
      * Handle redirecting the user to the OAuth provider.
      */

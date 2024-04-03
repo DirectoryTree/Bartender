@@ -91,8 +91,8 @@ class AuthServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        Bartender::registerProvider('google');
-        Bartender::registerProvider('microsoft');
+        Bartender::serve('google');
+        Bartender::serve('microsoft');
     }
 }
 ```
@@ -111,7 +111,7 @@ class AuthServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        Bartender::useUserModel(User::class);
+        Bartender::setUserModel(User::class);
     }
 }
 ```
@@ -137,13 +137,13 @@ route, and the users account will automatically be created or updated.
 
 Almost everything can be swapped out in Bartender.
 
-
-If you would like to handle everything yourself for redirects and callbacks, you may create your own `ProviderHandler`:
+If you would like to handle everything yourself for OAuth redirects and callbacks, you may create your own `ProviderHandler`:
 
 ```php
 namespace App\Socialite;
 
 use Illuminate\Http\Request;
+use Laravel\Socialite\Contracts\Provider;
 use DirectoryTree\Bartender\ProviderHandler;
 
 class UserProviderHandler implements ProviderHandler
@@ -176,14 +176,32 @@ class UserProviderHandler implements ProviderHandler
         return redirect()->route('dashboard');
     }
 }
-
 ```
 
+Then, provide it into the second argument in the `Bartender::serve` method:
+
+```php
+// app/Providers/AuthServiceProvider.php
+
+use App\Socialite\UserProviderHandler;
+use DirectoryTree\Bartender\Facades\Bartender;
+
+class AuthServiceProvider extends ServiceProvider
+{
+    // ...
+
+    public function boot()
+    {
+        Bartender::serve('google', UserProviderHandler::class);
+        Bartender::serve('microsoft', UserProviderHandler::class);
+    }
+}
+```
 
 ### User Creation & Updating
 
-If you would like to customize the creation of the user provider, you can create your own
-`UserProvider` implementation:
+If you would like to customize the creation of the user in the default
+handler, you may create your own `ProviderRepository` implementation:
 
 ```php
 namespace App\Socialite;
@@ -233,8 +251,9 @@ class AppServiceProvider extends ServiceProvider
 
 ### User Redirects & Flash Messaging
 
-If you would like to customize the behavior of the redirects and flash messages depending
-on the outcome of a OAuth callback, you can create your own `ProviderRedirector` implementation:
+If you would like to customize the behavior of the redirects of the default 
+redirector and flash messages depending on the outcome of a OAuth callback, 
+you can create your own `ProviderRedirector` implementation:
 
 ```php
 namespace App\Socialite;

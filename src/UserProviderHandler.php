@@ -4,7 +4,6 @@ namespace DirectoryTree\Bartender;
 
 use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Two\User as SocialiteUser;
 

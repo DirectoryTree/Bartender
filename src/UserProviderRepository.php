@@ -18,7 +18,7 @@ class UserProviderRepository implements ProviderRepository
      */
     public function exists(string $driver, SocialiteUser $user): bool
     {
-        return $this->newUserQuery(Bartender::user())
+        return $this->newUserQuery(Bartender::getUserModel())
             ->where('email', '=', $user->email)
             ->where(fn (Builder $query) => (
                 $query
@@ -33,7 +33,7 @@ class UserProviderRepository implements ProviderRepository
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
-        $model = Bartender::user();
+        $model = Bartender::getUserModel();
 
         $eloquent = $this->newUserQuery($model)->firstOrNew([
             'email' => $user->email,
@@ -60,20 +60,22 @@ class UserProviderRepository implements ProviderRepository
 
     /**
      * Get a new user query instance.
+     *
+     * @param class-string $model
      */
-    protected function newUserQuery(Model $model): Builder
+    protected function newUserQuery(string $model): Builder
     {
         if ($this->isUsingSoftDeletes($model)) {
-            return $model->withTrashed();
+            return $model::withTrashed();
         }
 
-        return $model->newQuery();
+        return $model::query();
     }
 
     /**
      * Determine if the given model uses soft deletes.
      */
-    protected function isUsingSoftDeletes(Model $model): bool
+    protected function isUsingSoftDeletes(string $model): bool
     {
         return in_array(SoftDeletes::class, class_uses_recursive($model));
     }
@@ -81,7 +83,7 @@ class UserProviderRepository implements ProviderRepository
     /**
      * Determine if the given model is verifying emails.
      */
-    protected function isVerifyingEmails(Model $model): bool
+    protected function isVerifyingEmails(string $model): bool
     {
         return in_array(MustVerifyEmail::class, class_uses_recursive($model));
     }

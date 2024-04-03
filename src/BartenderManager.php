@@ -23,7 +23,7 @@ class BartenderManager
     /**
      * Set the user model class name.
      */
-    public function useUserModel(string $userModel): void
+    public function setUserModel(string $userModel): void
     {
         $this->userModel = $userModel;
     }
@@ -31,17 +31,17 @@ class BartenderManager
     /**
      * Get a new user model instance.
      */
-    public function user(): Model
+    public function getUserModel(): string
     {
-        return new $this->userModel;
+        return $this->userModel;
     }
 
     /**
-     * Register a new driver handler.
+     * Register a new driver handler to serve.
      *
      * @param class-string $handler
      */
-    public function register(string $driver, string $handler = UserProviderHandler::class): void
+    public function serve(string $driver, string $handler = UserProviderHandler::class): void
     {
         $this->handlers[$driver] = $handler;
     }

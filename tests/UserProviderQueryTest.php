@@ -6,7 +6,7 @@ use DirectoryTree\Bartender\UserProviderRepository;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
-beforeEach(fn () => Bartender::useUserModel(User::class));
+beforeEach(fn () => Bartender::setUserModel(User::class));
 
 it('determines if user already exists with a different provider', function () {
     $socialite = tap(new SocialiteUser(), function ($user) {

@@ -7,7 +7,7 @@ use DirectoryTree\Bartender\Tests\User;
 test('it can register handlers', function () {
     $manager = new BartenderManager();
 
-    $manager->register('foo', stdClass::class);
+    $manager->serve('foo', stdClass::class);
 
     expect($manager->handlers())->toBe(['foo' => stdClass::class]);
 });
@@ -15,9 +15,9 @@ test('it can register handlers', function () {
 test('it returns new user model', function () {
     $manager = new BartenderManager();
 
-    $manager->useUserModel(User::class);
+    $manager->setUserModel(User::class);
 
-    expect($manager->user())->toBeInstanceOf(User::class);
+    expect($manager->getUserModel())->toBe(User::class);
 });
 
 test('it is bound to facade', function () {
