@@ -13,7 +13,7 @@ class BartenderServiceProvider extends ServiceProvider
     {
         $this->app->singleton(BartenderManager::class);
 
-        $this->app->bind(ProviderQuery::class, UserProviderQuery::class);
+        $this->app->bind(ProviderRepository::class, UserProviderRepository::class);
         $this->app->bind(ProviderRedirector::class, UserProviderRedirector::class);
     }
 

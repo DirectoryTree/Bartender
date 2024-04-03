@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 class UserProviderRedirector implements ProviderRedirector
@@ -56,6 +57,8 @@ class UserProviderRedirector implements ProviderRedirector
      */
     public function userAuthenticated(Authenticatable $user, SocialiteUser $socialite, string $driver): RedirectResponse
     {
+        Auth::login($user);
+
         return redirect('dashboard');
     }
 

@@ -2,7 +2,7 @@
 
 use DirectoryTree\Bartender\Facades\Bartender;
 use DirectoryTree\Bartender\Tests\User;
-use DirectoryTree\Bartender\UserProviderQuery;
+use DirectoryTree\Bartender\UserProviderRepository;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
@@ -22,7 +22,7 @@ it('determines if user already exists with a different provider', function () {
         'password' => bcrypt('password'),
     ]);
 
-    expect((new UserProviderQuery)->exists('bar', $socialite))->toBeTrue();
+    expect((new UserProviderRepository)->exists('bar', $socialite))->toBeTrue();
 });
 
 it('determines if user already exists with no provider', function () {
@@ -39,7 +39,7 @@ it('determines if user already exists with no provider', function () {
         'password' => bcrypt('password'),
     ]);
 
-    expect((new UserProviderQuery)->exists('bar', $socialite))->toBeTrue();
+    expect((new UserProviderRepository)->exists('bar', $socialite))->toBeTrue();
 });
 
 it('creates new user', function () {
@@ -49,7 +49,7 @@ it('creates new user', function () {
         $user->email = 'foo@email.com';
     });
 
-    $user = (new UserProviderQuery)->updateOrCreate('foo', $socialite);
+    $user = (new UserProviderRepository)->updateOrCreate('foo', $socialite);
 
     expect($user->name)->toBe('foo');
     expect($user->email)->toBe('foo@email.com');
@@ -72,7 +72,7 @@ it('updates user not associated to provider', function () {
         'password' => 'password',
     ]);
 
-    $user = (new UserProviderQuery)->updateOrCreate('foo', $socialite);
+    $user = (new UserProviderRepository)->updateOrCreate('foo', $socialite);
 
     expect($user->wasRecentlyCreated)->toBeFalse();
     expect($user->name)->toBe('foo');
@@ -96,7 +96,7 @@ it('throws exception when attempting to create existing user with null provider'
 
     $this->expectException(UniqueConstraintViolationException::class);
 
-    (new UserProviderQuery)->updateOrCreate('foo', $socialite);
+    (new UserProviderRepository)->updateOrCreate('foo', $socialite);
 });
 
 it('throws exception when attempting to create existing user with another provider', function () {
@@ -116,5 +116,5 @@ it('throws exception when attempting to create existing user with another provid
 
     $this->expectException(UniqueConstraintViolationException::class);
 
-    (new UserProviderQuery)->updateOrCreate('bar', $socialite);
+    (new UserProviderRepository)->updateOrCreate('bar', $socialite);
 });

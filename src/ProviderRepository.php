@@ -5,7 +5,7 @@ namespace DirectoryTree\Bartender;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
-interface ProviderQuery
+interface ProviderRepository
 {
     /**
      * Determine if the user already exists under a different provider.

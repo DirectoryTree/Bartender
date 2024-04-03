@@ -1,6 +1,6 @@
 <?php
 
-use DirectoryTree\Bartender\ProviderQuery;
+use DirectoryTree\Bartender\ProviderRepository;
 use DirectoryTree\Bartender\ProviderRedirector;
 use DirectoryTree\Bartender\Tests\User;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +32,7 @@ it('can handle when user already exists', function () {
     $provider = $this->mock(Provider::class);
     $provider->shouldReceive('user')->once()->andReturn(new SocialiteUser());
 
-    $this->mock(ProviderQuery::class, function ($mock) {
+    $this->mock(ProviderRepository::class, function ($mock) {
         $mock->shouldReceive('exists')->once()->andReturn(true);
     });
 
@@ -49,7 +49,7 @@ it('can handle exception when unable to create or update user', function () {
     $provider = $this->mock(Provider::class);
     $provider->shouldReceive('user')->once()->andReturn($socialite);
 
-    $this->mock(ProviderQuery::class, function ($mock) use ($socialite) {
+    $this->mock(ProviderRepository::class, function ($mock) use ($socialite) {
         $mock->shouldReceive('exists')->once()->andReturn(false);
         $mock->shouldReceive('updateOrCreate')->once()->andThrow(Exception::class);
     });
@@ -68,7 +68,7 @@ it('can authenticate user', function () {
     $provider = $this->mock(Provider::class);
     $provider->shouldReceive('user')->once()->andReturn($socialite);
 
-    $this->mock(ProviderQuery::class, function ($mock) use ($user) {
+    $this->mock(ProviderRepository::class, function ($mock) use ($user) {
         $mock->shouldReceive('exists')->once()->andReturn(false);
         $mock->shouldReceive('updateOrCreate')->once()->andReturn($user);
     });
@@ -76,8 +76,6 @@ it('can authenticate user', function () {
     $this->mock(ProviderRedirector::class, function ($mock) use ($socialite) {
         $mock->shouldReceive('userAuthenticated')->once()->andReturn(redirect('/'));
     });
-
-    Auth::shouldReceive('login')->once()->with($user);
 
     app(UserProviderHandler::class)->callback($provider, 'foo');
 });

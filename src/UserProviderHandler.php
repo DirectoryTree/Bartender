@@ -14,7 +14,7 @@ class UserProviderHandler implements ProviderHandler
      * Constructor.
      */
     public function __construct(
-        protected ProviderQuery $users,
+        protected ProviderRepository $users,
         protected ProviderRedirector $redirector,
     ) {
     }
@@ -48,8 +48,6 @@ class UserProviderHandler implements ProviderHandler
         } catch (Exception $e) {
             return $this->redirector->unableToCreateUser($e, $socialite, $driver);
         }
-
-        Auth::login($user);
 
         return $this->redirector->userAuthenticated($user, $socialite, $driver);
     }

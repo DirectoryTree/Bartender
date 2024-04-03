@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Facade;
 use DirectoryTree\Bartender\BartenderManager;
 
 /**
+ * @method static void routes()
  * @method static void useUserModel(string $userModel)
  * @method static \Illuminate\Database\Eloquent\Model user()
  * @method static void register(string $driver, string $handler)

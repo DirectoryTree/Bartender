@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
-class UserProviderQuery implements ProviderQuery
+class UserProviderRepository implements ProviderRepository
 {
     /**
      * Determine if the user already exists under a different provider.

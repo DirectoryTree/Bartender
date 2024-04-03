@@ -87,12 +87,12 @@ class BartenderManager
      */
     public function routes(): void
     {
-        Route::name('auth.redirect')
+        Route::name('auth.driver.redirect')
             ->whereIn('driver', array_keys($this->handlers))
-            ->get('auth/redirect/{driver}', [AuthController::class, 'redirect']);
+            ->get('auth/{driver}/redirect', [AuthController::class, 'redirect']);
 
-        Route::name('auth.callback')
+        Route::name('auth.driver.callback')
             ->whereIn('driver', array_keys($this->handlers))
-            ->get('auth/callback/{driver}', [AuthController::class, 'callback']);
+            ->get('auth/{driver}/callback', [AuthController::class, 'callback']);
     }
 }
