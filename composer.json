@@ -41,7 +41,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "BartenderServiceProvider"
+                "DirectoryTree\\Bartender\\BartenderServiceProvider"
             ],
             "aliases": {
                 "Bartender": "DirectoryTree\\Bartender\\Facades\\Bartender"
