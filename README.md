@@ -52,9 +52,9 @@ php artisan migrate
 
 ## Setup
 
-Register the authentication routes:
+Register the authentication routes using `Bartender::routes()`.
 
-> This will register the `/auth/{driver}/redirect` and `/auth/{driver}/callback` routes.
+This will register the `/auth/{driver}/redirect` and `/auth/{driver}/callback` routes.
 
 ```php
 // routes/web.php
@@ -63,6 +63,10 @@ use DirectoryTree\Bartender\Facades\Bartender;
 
 Bartender::routes();
 ```
+
+> [!important]
+> Remember to register this callback URL in your OAuth provider's settings.
+> For example, a Google OAuth callback would be `/auth/google/callback`.
 
 Set up your [Socialite Providers](https://socialiteproviders.com/) in your `services.php` configuration file:
 

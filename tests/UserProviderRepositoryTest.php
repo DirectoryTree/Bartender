@@ -51,6 +51,7 @@ it('creates new user', function () {
 
     $user = (new UserProviderRepository)->updateOrCreate('foo', $socialite);
 
+    expect($user->wasRecentlyCreated)->toBeTrue();
     expect($user->name)->toBe('foo');
     expect($user->email)->toBe('foo@email.com');
     expect($user->provider_id)->toBe('1');
