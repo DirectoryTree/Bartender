@@ -15,6 +15,10 @@ An opinionated way to authenticate users using Laravel Socialite.
 
 ---
 
+Bartender provides you a controller, routes, and a default implementation for handling authentication with Laravel Socialite providers.
+
+Almost everything in Bartender can be customized.
+
 ## Index
 
 - [Requirements](#requirements)
@@ -88,7 +92,7 @@ return [
 ];
 ```
 
-Register the Socialite Provider in your `AuthServiceProvider`:
+Register the Socialite Provider in your `AuthServiceProvider` using `Bartender::serve()`:
 
 ```php
 // app/Providers/AuthServiceProvider.php
@@ -107,7 +111,7 @@ class AuthServiceProvider extends ServiceProvider
 }
 ```
 
-If your application uses a `User` model outside the `App\Models` namespace, you can set it using the `Bartender` facade:
+If your application uses a `User` model outside the default `App\Models` namespace, you can set it using the `Bartender` facade:
 
 ```php
 // app/Providers/AuthServiceProvider.php
@@ -141,7 +145,19 @@ Direct your user to the `/auth/{driver}/redirect` route to authenticate with the
 ```
 
 Once the user successfully authenticates, they will be redirected to the `/auth/{driver}/callback` 
-route, and the users account will automatically be created or updated.
+route, which will automatically be create or update their application user account.
+
+### Soft Deletes
+
+With the default `UserProviderRepository`, users will be restored if they are soft-deleted and the login with their provider.
+
+To change this behaviour, [swap out the repository](#user-creation--updating).
+
+### Email Verification
+
+With the default `UserProviderRepository`, users will emails will be automatically verified (via the `email_verified_at` column) if it is not already set.
+
+To change this behaviour, [swap out the repository](#user-creation--updating).
 
 ## Extending & Customizing
 
