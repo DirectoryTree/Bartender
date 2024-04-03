@@ -306,6 +306,8 @@ class UserProviderRedirector implements ProviderRedirector
      */
     public function unableToAuthenticateUser(Exception $e, string $driver): RedirectResponse
     {
+        report($e);
+
         return redirect()->route('login')->with('error', 'Unable to authenticate user.');
     }
 
@@ -322,6 +324,8 @@ class UserProviderRedirector implements ProviderRedirector
      */
     public function unableToCreateUser(Exception $e, SocialiteUser $user, string $driver): RedirectResponse
     {
+        report($e);
+
         return redirect()->route('login')->with('error', 'Unable to create user.');
     }
 
