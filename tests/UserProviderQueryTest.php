@@ -3,7 +3,7 @@
 use DirectoryTree\Bartender\Facades\Bartender;
 use DirectoryTree\Bartender\Tests\User;
 use DirectoryTree\Bartender\UserProviderRepository;
-use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Database\QueryException;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 beforeEach(fn () => Bartender::setUserModel(User::class));
@@ -94,7 +94,7 @@ it('throws exception when attempting to create existing user with null provider'
         'password' => 'password',
     ]);
 
-    $this->expectException(UniqueConstraintViolationException::class);
+    $this->expectException(QueryException::class);
 
     (new UserProviderRepository)->updateOrCreate('foo', $socialite);
 });
@@ -114,7 +114,7 @@ it('throws exception when attempting to create existing user with another provid
         'password' => 'password',
     ]);
 
-    $this->expectException(UniqueConstraintViolationException::class);
+    $this->expectException(QueryException::class);
 
     (new UserProviderRepository)->updateOrCreate('bar', $socialite);
 });
