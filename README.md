@@ -83,7 +83,7 @@ Register the Socialite Provider in your `AuthServiceProvider`:
 ```php
 // app/Providers/AuthServiceProvider.php
 
-use DirectoryTree\Bartender\Bartender;
+use DirectoryTree\Bartender\Facades\Bartender;
 
 class AuthServiceProvider extends ServiceProvider
 {
