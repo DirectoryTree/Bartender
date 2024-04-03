@@ -22,9 +22,9 @@ class BartenderServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->publishesMigrations([
-            __DIR__.'/../database/migrations' => $this->app->databasePath('migrations'),
-        ]);
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations/2024_03_31_000001_add_provider_columns_to_users_table.php'),
+        ], 'bartender-migrations');
     }
 
     /**
