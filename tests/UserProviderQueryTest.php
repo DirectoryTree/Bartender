@@ -24,6 +24,25 @@ it('determines if user exists but by different provider', function () {
     expect((new UserProviderQuery)->exists('bar', $socialite))->toBeTrue();
 });
 
+it('determines if user exists but by no provider', function () {
+    Bartender::useUserModel(User::class);
+
+    $socialite = tap(new SocialiteUser(), function ($user) {
+        $user->id = '1';
+        $user->email = 'foo@email.com';
+    });
+
+    User::create([
+        'provider_id' => null,
+        'provider_name' => null,
+        'name' => 'foo',
+        'email' => 'foo@email.com',
+        'password' => bcrypt('password'),
+    ]);
+
+    expect((new UserProviderQuery)->exists('bar', $socialite))->toBeTrue();
+});
+
 it('creates new user', function () {
     Bartender::useUserModel(User::class);
 

@@ -18,9 +18,13 @@ class UserProviderQuery implements ProviderQuery
      */
     public function exists(string $driver, SocialiteUser $user): bool
     {
-        return $this->newUserQuery()
+        return $this->newUserQuery(Bartender::user())
             ->where('email', '=', $user->email)
-            ->where('provider_name', '!=', $driver)
+            ->where(fn (Builder $query) => (
+                $query
+                    ->whereNull('provider_name')
+                    ->orWhere('provider_name', '!=', $driver)
+            ))
             ->exists();
     }
 
@@ -29,7 +33,9 @@ class UserProviderQuery implements ProviderQuery
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
-        $eloquent = $this->newUserQuery()->firstOrNew([
+        $model = Bartender::user();
+
+        $eloquent = $this->newUserQuery($model)->firstOrNew([
             'provider_id' => $user->id,
             'provider_name' => $driver,
         ]);
@@ -40,10 +46,10 @@ class UserProviderQuery implements ProviderQuery
                 'email' => $user->email,
                 'password' => $eloquent->password ?? bcrypt(Str::random()),
             ],
-            $this->isUsingSoftDeletes(Bartender::user())
+            $this->isUsingSoftDeletes($model)
                 ? ['deleted_at' => null]
                 : [],
-            $this->isVerifyingEmails(Bartender::user())
+            $this->isVerifyingEmails($model)
                 ? ['email_verified_at' => $eloquent->email_verified_at ?? now()]
                 : []
             )
@@ -55,10 +61,8 @@ class UserProviderQuery implements ProviderQuery
     /**
      * Get a new user query instance.
      */
-    protected function newUserQuery(): Builder
+    protected function newUserQuery(Model $model): Builder
     {
-        $model = Bartender::user();
-
         if ($this->isUsingSoftDeletes($model)) {
             return $model->withTrashed();
         }
