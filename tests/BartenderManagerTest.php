@@ -3,8 +3,13 @@
 use DirectoryTree\Bartender\BartenderManager;
 use DirectoryTree\Bartender\Facades\Bartender;
 use DirectoryTree\Bartender\Tests\User;
+use Illuminate\Support\Facades\Route;
 
-test('it can register handlers', function () {
+it('is bound to facade', function () {
+    expect(Bartender::getFacadeRoot())->toBeInstanceOf(BartenderManager::class);
+});
+
+it('can register handlers', function () {
     $manager = new BartenderManager();
 
     $manager->serve('foo', stdClass::class);
@@ -12,7 +17,7 @@ test('it can register handlers', function () {
     expect($manager->handlers())->toBe(['foo' => stdClass::class]);
 });
 
-test('it returns new user model', function () {
+it('returns new user model', function () {
     $manager = new BartenderManager();
 
     $manager->setUserModel(User::class);
@@ -20,6 +25,12 @@ test('it returns new user model', function () {
     expect($manager->getUserModel())->toBe(User::class);
 });
 
-test('it is bound to facade', function () {
-    expect(Bartender::getFacadeRoot())->toBeInstanceOf(BartenderManager::class);
+it('registers routes', function () {
+    $manager = new BartenderManager();
+
+    $manager->routes();
+
+    expect(Route::getRoutes())->toHaveCount(2);
+    expect(Route::has('auth.driver.callback'))->toBeTrue();
+    expect(Route::has('auth.driver.redirect'))->toBeTrue();
 });

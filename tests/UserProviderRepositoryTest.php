@@ -9,11 +9,6 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 beforeEach(fn () => Bartender::setUserModel(User::class));
 
 it('determines if user already exists with a different provider', function () {
-    $socialite = tap(new SocialiteUser(), function ($user) {
-        $user->id = '1';
-        $user->email = 'foo@email.com';
-    });
-
     User::create([
         'provider_id' => '1',
         'provider_name' => 'foo',
@@ -22,15 +17,15 @@ it('determines if user already exists with a different provider', function () {
         'password' => bcrypt('password'),
     ]);
 
-    expect((new UserProviderRepository)->exists('bar', $socialite))->toBeTrue();
-});
-
-it('determines if user already exists with no provider', function () {
     $socialite = tap(new SocialiteUser(), function ($user) {
         $user->id = '1';
         $user->email = 'foo@email.com';
     });
 
+    expect((new UserProviderRepository)->exists('bar', $socialite))->toBeTrue();
+});
+
+it('determines if user already exists with no provider', function () {
     User::create([
         'provider_id' => null,
         'provider_name' => null,
@@ -38,6 +33,11 @@ it('determines if user already exists with no provider', function () {
         'email' => 'foo@email.com',
         'password' => bcrypt('password'),
     ]);
+
+    $socialite = tap(new SocialiteUser(), function ($user) {
+        $user->id = '1';
+        $user->email = 'foo@email.com';
+    });
 
     expect((new UserProviderRepository)->exists('bar', $socialite))->toBeTrue();
 });
@@ -58,12 +58,6 @@ it('creates new user', function () {
 });
 
 it('updates user not associated to provider', function () {
-    $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
-        $user->id = '1';
-        $user->name = 'foo';
-        $user->email = 'foo@email.com';
-    });
-
     User::create([
         'provider_id' => '1',
         'provider_name' => 'foo',
@@ -71,6 +65,12 @@ it('updates user not associated to provider', function () {
         'email' => 'foo@email.com',
         'password' => 'password',
     ]);
+
+    $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
+        $user->id = '1';
+        $user->name = 'foo';
+        $user->email = 'foo@email.com';
+    });
 
     $user = (new UserProviderRepository)->updateOrCreate('foo', $socialite);
 
@@ -82,12 +82,6 @@ it('updates user not associated to provider', function () {
 });
 
 it('throws exception when attempting to create existing user with null provider', function () {
-    $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
-        $user->id = '1';
-        $user->name = 'foo';
-        $user->email = 'foo@email.com';
-    });
-
     User::create([
         'name' => 'bar',
         'email' => 'foo@email.com',
@@ -96,16 +90,16 @@ it('throws exception when attempting to create existing user with null provider'
 
     $this->expectException(QueryException::class);
 
-    (new UserProviderRepository)->updateOrCreate('foo', $socialite);
-});
-
-it('throws exception when attempting to create existing user with another provider', function () {
     $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
-        $user->id = '123';
+        $user->id = '1';
         $user->name = 'foo';
         $user->email = 'foo@email.com';
     });
 
+    (new UserProviderRepository)->updateOrCreate('foo', $socialite);
+});
+
+it('throws exception when attempting to create existing user with another provider', function () {
     User::create([
         'name' => 'bar',
         'provider_id' => '456',
@@ -113,6 +107,12 @@ it('throws exception when attempting to create existing user with another provid
         'email' => 'foo@email.com',
         'password' => 'password',
     ]);
+
+    $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
+        $user->id = '123';
+        $user->name = 'bar';
+        $user->email = 'foo@email.com';
+    });
 
     $this->expectException(QueryException::class);
 
