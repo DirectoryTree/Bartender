@@ -68,7 +68,7 @@ Bartender::routes();
 Set up your [Socialite Providers](https://socialiteproviders.com/) in your `services.php` configuration file:
 
 > [!important]
-> Remember to register the redirect URLs in your OAuth provider's settings.
+> Remember to register the redirect URLs in each of your OAuth provider's settings.
 
 ```php
 // config/services.php
