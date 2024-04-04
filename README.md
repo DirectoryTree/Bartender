@@ -335,6 +335,8 @@ class UserProviderRedirector implements ProviderRedirector
     public function userAuthenticated(Authenticatable $user, SocialiteUser $socialite, string $driver): RedirectResponse
     {
         Auth::login($user);
+        
+        session()->regenerate();
     
         return redirect()->route('dashboard');
     }

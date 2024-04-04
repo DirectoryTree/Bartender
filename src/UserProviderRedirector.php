@@ -59,6 +59,8 @@ class UserProviderRedirector implements ProviderRedirector
     {
         Auth::login($user);
 
+        session()->regenerate();
+
         return redirect('dashboard');
     }
 
