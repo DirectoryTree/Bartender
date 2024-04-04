@@ -69,7 +69,7 @@ use DirectoryTree\Bartender\Facades\Bartender;
 Bartender::routes();
 ```
 
-Set up your [Socialite Providers](https://socialiteproviders.com/) in your `services.php` configuration file:
+Set up your installed [Socialite Providers](https://socialiteproviders.com/) in your `services.php` configuration file:
 
 > [!important]
 > Remember to register the redirect URLs in each of your OAuth provider's settings.
