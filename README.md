@@ -69,10 +69,14 @@ use DirectoryTree\Bartender\Facades\Bartender;
 Bartender::routes();
 ```
 
-Set up your installed [Socialite Providers](https://socialiteproviders.com/) in your `services.php` configuration file:
+Set up any [Socialite Providers](https://socialiteproviders.com) you need, and update your `services.php` configuration file with the `redirect` URL for each provider:
 
 > [!important]
-> Remember to register the redirect URLs in each of your OAuth provider's settings.
+> Remember to fully complete the installation steps for each Socialite Provider you wish to use.
+> 
+> If you receive a "Driver [X] not supported" exception, you have not completed the installation steps for the provider.
+
+```bash
 
 ```php
 // config/services.php
@@ -92,7 +96,7 @@ return [
 ];
 ```
 
-Register the Socialite Provider in your `AuthServiceProvider` using `Bartender::serve()`:
+Finally, register the Socialite Provider in your `AuthServiceProvider` using `Bartender::serve()`:
 
 ```php
 // app/Providers/AuthServiceProvider.php
