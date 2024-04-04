@@ -111,7 +111,9 @@ class AuthServiceProvider extends ServiceProvider
 }
 ```
 
-If your application uses a `User` model outside the default `App\Models` namespace, you can set it using the `Bartender` facade:
+If your application uses a `User` model outside the default `App\Models` namespace, you can set it using the `Bartender` facade.
+
+> If your application uses the default Laravel `User` model in the `App\Models` namespace, skip this step.
 
 ```php
 // app/Providers/AuthServiceProvider.php
