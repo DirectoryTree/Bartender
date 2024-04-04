@@ -74,9 +74,7 @@ Set up any [Socialite Providers](https://socialiteproviders.com) you need, and u
 > [!important]
 > Remember to fully complete the installation steps for each Socialite Provider you wish to use.
 > 
-> If you receive a "Driver [X] not supported" exception, you have not completed the installation steps for the provider.
-
-```bash
+> If you receive a `Driver [X] not supported` exception, you have not completed the installation steps for the provider.
 
 ```php
 // config/services.php
