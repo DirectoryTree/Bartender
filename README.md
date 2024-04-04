@@ -258,7 +258,7 @@ class UserProviderRepository implements ProviderRepository
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
-        $user = User::firstOrNew([
+        $user = User::withTrashed()->firstOrNew([
             // ...
         ]);
         
