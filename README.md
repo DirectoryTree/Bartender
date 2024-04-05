@@ -303,6 +303,9 @@ you can create your own `ProviderRedirector` implementation:
 
 namespace App\Socialite;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+
 class UserProviderRedirector implements ProviderRedirector
 {
     /**
@@ -340,7 +343,7 @@ class UserProviderRedirector implements ProviderRedirector
     {
         Auth::login($user);
         
-        session()->regenerate();
+        Session::regenerate();
     
         return redirect()->route('dashboard');
     }
