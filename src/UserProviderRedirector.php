@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 class UserProviderRedirector implements ProviderRedirector
@@ -59,7 +60,7 @@ class UserProviderRedirector implements ProviderRedirector
     {
         Auth::login($user);
 
-        session()->regenerate();
+        Session::regenerate();
 
         return redirect('dashboard');
     }
