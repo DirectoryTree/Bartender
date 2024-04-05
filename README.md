@@ -298,6 +298,9 @@ If you would like to customize the behavior of the redirects of the default
 redirector and flash messages depending on the outcome of a OAuth callback, 
 you can create your own `ProviderRedirector` implementation:
 
+> It's recommended to regenerate the session after authentication to prevent users
+> from exploiting a [session fixation attack](https://laravel.com/docs/11.x/session#regenerating-the-session-id).
+
 ```php
 // app/Socialite/UserProviderRedirector.php
 
