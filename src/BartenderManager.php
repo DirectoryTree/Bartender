@@ -93,6 +93,6 @@ class BartenderManager
 
         Route::name('auth.driver.callback')
             ->whereIn('driver', array_keys($this->handlers))
-            ->get('auth/{driver}/callback', [AuthController::class, 'callback']);
+            ->match(['get', 'post'], 'auth/{driver}/callback', [AuthController::class, 'callback']);
     }
 }
