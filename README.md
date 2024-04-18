@@ -43,7 +43,7 @@ composer require directorytree/bartender
 
 Then, publish the migration:
 
-> Creates the `provider_id` and `provider_name` column on the `users` table.
+> It creates the `provider_id` and `provider_name` column on the `users` table.
 
 ```bash
 php artisan vendor:publish --provider="DirectoryTree\Bartender\BartenderServiceProvider"
