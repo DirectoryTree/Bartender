@@ -13,6 +13,12 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 class UserProviderRedirector implements ProviderRedirector
 {
     /**
+     * @var string
+     * URL to redirect after successfully authenticated
+     */
+    public static string $success_url = 'dashboard';
+
+    /**
      * Redirect when unable to authenticate the user.
      */
     public function unableToAuthenticateUser(Exception $e, string $driver): RedirectResponse
@@ -62,7 +68,7 @@ class UserProviderRedirector implements ProviderRedirector
 
         Session::regenerate();
 
-        return redirect('dashboard');
+        return redirect()->intended(static::$success_url);
     }
 
     /**
