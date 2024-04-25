@@ -13,10 +13,24 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 class UserProviderRedirector implements ProviderRedirector
 {
     /**
-     * @var string
-     * URL to redirect after successfully authenticated
+     * The URL to redirect to when unable to authenticate the user.
      */
-    public static string $success_url = 'dashboard';
+    public static string $unableToAuthenticateUserUrl = 'login';
+
+    /**
+     * The URL to redirect to when the user already exists.
+     */
+    public static string $userAlreadyExistsUrl = 'login';
+
+    /**
+     * The URL to redirect to when unable to create the user.
+     */
+    public static string $unableToCreateUserUrl = 'login';
+
+    /**
+     * The URL to redirect to when the user has been successfully authenticated.
+     */
+    public static string $userAuthenticatedUrl = 'dashboard';
 
     /**
      * Redirect when unable to authenticate the user.
@@ -27,7 +41,7 @@ class UserProviderRedirector implements ProviderRedirector
 
         $message = sprintf('There was a problem creating your %s account. Please try again.', ucfirst($driver));
 
-        return $this->redirector()->to('login')->with('flash', [
+        return $this->redirector()->to(static::$unableToAuthenticateUserUrl)->with('flash', [
             'bannerStyle' => 'danger',
             'banner' => $message,
         ]);
@@ -40,7 +54,7 @@ class UserProviderRedirector implements ProviderRedirector
     {
         $message = sprintf("An account with the email address '%s' already exists.", $user->email);
 
-        return $this->redirector()->to('login')->with('flash', [
+        return $this->redirector()->to(static::$userAlreadyExistsUrl)->with('flash', [
             'bannerStyle' => 'danger',
             'banner' => $message,
         ]);
@@ -53,7 +67,7 @@ class UserProviderRedirector implements ProviderRedirector
     {
         report($e);
 
-        return $this->redirector()->to('login')->with('flash', [
+        return $this->redirector()->to(static::$unableToCreateUserUrl)->with('flash', [
             'bannerStyle' => 'danger',
             'banner' => 'There was a problem creating your account. Please try again.',
         ]);
@@ -68,7 +82,7 @@ class UserProviderRedirector implements ProviderRedirector
 
         Session::regenerate();
 
-        return redirect()->intended(static::$success_url);
+        return redirect()->intended(static::$userAuthenticatedUrl);
     }
 
     /**
