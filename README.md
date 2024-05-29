@@ -49,6 +49,25 @@ Then, publish the migration:
 php artisan vendor:publish --provider="DirectoryTree\Bartender\BartenderServiceProvider"
 ```
 
+Update your User model to allow filling of the `provider_id` and `provider_name` fields:
+
+```php
+// app/Models/User.php
+
+/**
+ * The attributes that are mass assignable.
+ *
+ * @var array<int, string>
+ */
+protected $fillable = [
+    'name',
+    'email',
+    'password',
+    'provider_id',
+    'provider_name'
+];
+```
+
 Finally, run the migration:
 
 ```bash
