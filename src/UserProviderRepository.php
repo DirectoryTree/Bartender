@@ -35,12 +35,15 @@ class UserProviderRepository implements ProviderRepository
     {
         $model = Bartender::getUserModel();
 
-        $eloquent = $this->newUserQuery($model)->firstOrNew([
+        $eloquent = $this->newUserQuery($model)->firstWhere([
+            'email' => $user->email,
+            'provider_name' => $driver,
+        ]) ?? (new $model)->forceFill([
             'email' => $user->email,
             'provider_name' => $driver,
         ]);
 
-        $eloquent->fill(
+        $eloquent->forceFill(
             array_merge([
                 'name' => $user->name,
                 'provider_id' => $user->id,
