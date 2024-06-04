@@ -3,7 +3,7 @@
 namespace DirectoryTree\Bartender;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Laravel\Socialite\Two\User as SocialiteUser;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 interface ProviderRepository
 {

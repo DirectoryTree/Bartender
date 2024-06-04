@@ -8,7 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Laravel\Socialite\Two\User as SocialiteUser;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 class UserProviderRedirector implements ProviderRedirector
 {

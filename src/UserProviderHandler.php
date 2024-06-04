@@ -5,7 +5,7 @@ namespace DirectoryTree\Bartender;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Socialite\Contracts\Provider;
-use Laravel\Socialite\Two\User as SocialiteUser;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 class UserProviderHandler implements ProviderHandler
 {
