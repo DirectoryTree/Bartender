@@ -3,7 +3,6 @@
 use DirectoryTree\Bartender\ProviderRepository;
 use DirectoryTree\Bartender\ProviderRedirector;
 use DirectoryTree\Bartender\Tests\User;
-use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use DirectoryTree\Bartender\UserProviderHandler;
