@@ -5,7 +5,7 @@ namespace DirectoryTree\Bartender;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
-use Laravel\Socialite\Two\User as SocialiteUser;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 interface ProviderRedirector
 {

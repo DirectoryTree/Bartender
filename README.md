@@ -245,7 +245,7 @@ namespace App\Socialite;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use DirectoryTree\Bartender\ProviderRepository;
-use Laravel\Socialite\Two\User as SocialiteUser;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 class UserProviderRepository implements ProviderRepository
 {

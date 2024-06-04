@@ -6,10 +6,9 @@ use DirectoryTree\Bartender\Facades\Bartender;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Laravel\Socialite\Two\User as SocialiteUser;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 class UserProviderRepository implements ProviderRepository
 {
