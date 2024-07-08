@@ -151,6 +151,10 @@ Direct your user to the `/auth/{driver}/redirect` route to authenticate with the
 Once the user successfully authenticates, they will be redirected to the `/auth/{driver}/callback` 
 route, which will automatically create or update their application user account.
 
+> [!important]
+> If you receive a `Routing requirement for "driver" cannot be empty` exception, you have forgotten to register
+> your the Socialite provider with Bartender using `Bartender::serve()` in your `AppServiceProvider`.
+
 ### Soft Deletes
 
 With the default `UserProviderRepository`, users will be restored if they are soft-deleted and the login with their provider.
