@@ -94,14 +94,14 @@ return [
 ];
 ```
 
-Finally, register the Socialite Provider in your `AuthServiceProvider` using `Bartender::serve()`:
+Finally, register the Socialite Provider in your `AppServiceProvider` using `Bartender::serve()`:
 
 ```php
-// app/Providers/AuthServiceProvider.php
+// app/Providers/AppServiceProvider.php
 
 use DirectoryTree\Bartender\Facades\Bartender;
 
-class AuthServiceProvider extends ServiceProvider
+class AppServiceProvider extends ServiceProvider
 {
     // ...
 
