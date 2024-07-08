@@ -152,8 +152,9 @@ Once the user successfully authenticates, they will be redirected to the `/auth/
 route, which will automatically create or update their application user account.
 
 > [!important]
-> If you receive a `Routing requirement for "driver" cannot be empty` exception, you have forgotten to register
-> your the Socialite provider with Bartender using `Bartender::serve()` in your `AppServiceProvider`.
+> If you receive a `Routing requirement for "driver" cannot be empty` exception upon clicking
+> one of the login links, you have forgotten to register your the Socialite provider with
+> Bartender using `Bartender::serve()` in your `AppServiceProvider`.
 
 ### Soft Deletes
 
