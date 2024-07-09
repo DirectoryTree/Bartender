@@ -2,11 +2,13 @@
 
 namespace DirectoryTree\Bartender;
 
+use DirectoryTree\Bartender\Events\UserAuthenticated;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 
@@ -81,6 +83,8 @@ class UserProviderRedirector implements ProviderRedirector
         Auth::login($user);
 
         Session::regenerate();
+
+        Event::dispatch(new UserAuthenticated($user));
 
         return redirect()->intended(static::$userAuthenticatedUrl);
     }
