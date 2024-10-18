@@ -4,6 +4,7 @@ use DirectoryTree\Bartender\Facades\Bartender;
 use DirectoryTree\Bartender\Tests\User;
 use DirectoryTree\Bartender\UserProviderRepository;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 beforeEach(fn () => Bartender::setUserModel(User::class));
@@ -14,7 +15,7 @@ it('determines if user already exists with a different provider', function () {
         'provider_name' => 'foo',
         'name' => 'foo',
         'email' => 'foo@email.com',
-        'password' => bcrypt('password'),
+        'password' => Hash::make('password'),
     ]);
 
     $socialite = tap(new SocialiteUser(), function ($user) {
@@ -31,7 +32,7 @@ it('determines if user already exists with no provider', function () {
         'provider_name' => null,
         'name' => 'foo',
         'email' => 'foo@email.com',
-        'password' => bcrypt('password'),
+        'password' => Hash::make('password'),
     ]);
 
     $socialite = tap(new SocialiteUser(), function ($user) {

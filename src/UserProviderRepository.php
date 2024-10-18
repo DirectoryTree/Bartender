@@ -7,6 +7,7 @@ use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 
@@ -46,7 +47,7 @@ class UserProviderRepository implements ProviderRepository
             array_merge([
                 'name' => $user->name,
                 'provider_id' => $user->id,
-                'password' => $eloquent->password ?? bcrypt(Str::random()),
+                'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
             ],
             $this->isUsingSoftDeletes($model)
                 ? ['deleted_at' => null]
@@ -58,6 +59,22 @@ class UserProviderRepository implements ProviderRepository
         )->save();
 
         return $eloquent;
+    }
+
+    /**
+     * Hash the given value.
+     */
+    protected function hash(string $value): string
+    {
+        return Hash::make($value);
+    }
+
+    /**
+     * Get a new password for the user.
+     */
+    protected function getNewPassword(): string
+    {
+        return Str::random();
     }
 
     /**
