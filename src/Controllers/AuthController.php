@@ -2,8 +2,8 @@
 
 namespace DirectoryTree\Bartender\Controllers;
 
-use Illuminate\Http\RedirectResponse;
 use DirectoryTree\Bartender\Facades\Bartender;
+use Illuminate\Http\RedirectResponse;
 
 class AuthController
 {

@@ -2,8 +2,8 @@
 
 namespace DirectoryTree\Bartender;
 
-use Laravel\Socialite\Contracts\Provider;
 use Illuminate\Http\RedirectResponse;
+use Laravel\Socialite\Contracts\Provider;
 
 interface ProviderHandler
 {

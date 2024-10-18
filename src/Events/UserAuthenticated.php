@@ -11,6 +11,5 @@ class UserAuthenticated
      */
     public function __construct(
         public Authenticatable $user
-    ) {
-    }
+    ) {}
 }

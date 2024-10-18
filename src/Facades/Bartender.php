@@ -2,8 +2,8 @@
 
 namespace DirectoryTree\Bartender\Facades;
 
-use Illuminate\Support\Facades\Facade;
 use DirectoryTree\Bartender\BartenderManager;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static void routes()
