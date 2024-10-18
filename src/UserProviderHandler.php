@@ -15,8 +15,7 @@ class UserProviderHandler implements ProviderHandler
     public function __construct(
         protected ProviderRepository $users,
         protected ProviderRedirector $redirector,
-    ) {
-    }
+    ) {}
 
     /**
      * Handle redirecting the user to the OAuth provider.

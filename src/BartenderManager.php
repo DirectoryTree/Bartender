@@ -2,11 +2,11 @@
 
 namespace DirectoryTree\Bartender;
 
-use Illuminate\Http\RedirectResponse;
-use Laravel\Socialite\Facades\Socialite;
 use DirectoryTree\Bartender\Controllers\AuthController;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Facades\Socialite;
 
 class BartenderManager
 {
@@ -39,7 +39,7 @@ class BartenderManager
     /**
      * Register a new driver handler to serve.
      *
-     * @param class-string $handler
+     * @param  class-string  $handler
      */
     public function serve(string $driver, string $handler = UserProviderHandler::class): void
     {

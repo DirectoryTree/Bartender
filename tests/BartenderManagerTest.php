@@ -10,7 +10,7 @@ it('is bound to facade', function () {
 });
 
 it('can register handlers', function () {
-    $manager = new BartenderManager();
+    $manager = new BartenderManager;
 
     $manager->serve('foo', stdClass::class);
 
@@ -18,7 +18,7 @@ it('can register handlers', function () {
 });
 
 it('returns new user model', function () {
-    $manager = new BartenderManager();
+    $manager = new BartenderManager;
 
     $manager->setUserModel(User::class);
 
@@ -26,7 +26,7 @@ it('returns new user model', function () {
 });
 
 it('registers routes', function () {
-    $manager = new BartenderManager();
+    $manager = new BartenderManager;
 
     $manager->routes();
 

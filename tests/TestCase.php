@@ -2,12 +2,10 @@
 
 namespace DirectoryTree\Bartender\Tests;
 
-use Orchestra\Testbench\Attributes\WithEnv;
-use Orchestra\Testbench\Attributes\WithMigration;
-use Orchestra\Testbench\TestCase as BaseTestCase;
 use DirectoryTree\Bartender\BartenderServiceProvider;
+use Orchestra\Testbench\TestCase as BaseTestCase;
+
 use function Orchestra\Testbench\laravel_migration_path;
-use function Orchestra\Testbench\workbench_path;
 
 class TestCase extends BaseTestCase
 {

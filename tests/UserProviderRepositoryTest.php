@@ -18,7 +18,7 @@ it('determines if user already exists with a different provider', function () {
         'password' => Hash::make('password'),
     ]);
 
-    $socialite = tap(new SocialiteUser(), function ($user) {
+    $socialite = tap(new SocialiteUser, function ($user) {
         $user->id = '1';
         $user->email = 'foo@email.com';
     });
@@ -35,7 +35,7 @@ it('determines if user already exists with no provider', function () {
         'password' => Hash::make('password'),
     ]);
 
-    $socialite = tap(new SocialiteUser(), function ($user) {
+    $socialite = tap(new SocialiteUser, function ($user) {
         $user->id = '1';
         $user->email = 'foo@email.com';
     });
@@ -44,7 +44,7 @@ it('determines if user already exists with no provider', function () {
 });
 
 it('creates new user', function () {
-    $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
+    $socialite = tap(new SocialiteUser, function (SocialiteUser $user) {
         $user->id = '1';
         $user->name = 'foo';
         $user->email = 'foo@email.com';
@@ -68,7 +68,7 @@ it('updates user not associated to provider', function () {
         'password' => 'password',
     ]);
 
-    $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
+    $socialite = tap(new SocialiteUser, function (SocialiteUser $user) {
         $user->id = '1';
         $user->name = 'foo';
         $user->email = 'foo@email.com';
@@ -92,7 +92,7 @@ it('throws exception when attempting to create existing user with null provider'
 
     $this->expectException(QueryException::class);
 
-    $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
+    $socialite = tap(new SocialiteUser, function (SocialiteUser $user) {
         $user->id = '1';
         $user->name = 'foo';
         $user->email = 'foo@email.com';
@@ -110,7 +110,7 @@ it('throws exception when attempting to create existing user with another provid
         'password' => 'password',
     ]);
 
-    $socialite = tap(new SocialiteUser(), function (SocialiteUser $user) {
+    $socialite = tap(new SocialiteUser, function (SocialiteUser $user) {
         $user->id = '123';
         $user->name = 'bar';
         $user->email = 'foo@email.com';

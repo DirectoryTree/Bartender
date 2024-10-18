@@ -49,12 +49,12 @@ class UserProviderRepository implements ProviderRepository
                 'provider_id' => $user->id,
                 'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
             ],
-            $this->isUsingSoftDeletes($model)
-                ? ['deleted_at' => null]
-                : [],
-            $this->isVerifyingEmails($model)
-                ? ['email_verified_at' => $eloquent->email_verified_at ?? now()]
-                : []
+                $this->isUsingSoftDeletes($model)
+                    ? ['deleted_at' => null]
+                    : [],
+                $this->isVerifyingEmails($model)
+                    ? ['email_verified_at' => $eloquent->email_verified_at ?? now()]
+                    : []
             )
         )->save();
 
@@ -80,7 +80,7 @@ class UserProviderRepository implements ProviderRepository
     /**
      * Get a new user query instance.
      *
-     * @param class-string $model
+     * @param  class-string  $model
      */
     protected function newUserQuery(string $model): Builder
     {
