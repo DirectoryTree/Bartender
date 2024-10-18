@@ -127,7 +127,7 @@ class AuthServiceProvider extends ServiceProvider
 {
     // ...
 
-    public function boot()
+    public function boot(): void
     {
         Bartender::setUserModel(User::class);
     }
