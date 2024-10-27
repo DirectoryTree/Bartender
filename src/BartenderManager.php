@@ -29,7 +29,7 @@ class BartenderManager
     }
 
     /**
-     * Get a new user model instance.
+     * Get the user model class name.
      */
     public function getUserModel(): string
     {
