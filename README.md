@@ -237,6 +237,40 @@ class AuthServiceProvider extends ServiceProvider
 }
 ```
 
+You may also extend the built-in `UserProviderHandler` implementation if you prefer.
+
+For example, if you need to adjust the scopes for a single provider:
+
+```php
+namespace App\Socialite;
+
+use Illuminate\Http\RedirectResponse;
+use Laravel\Socialite\Contracts\Provider;
+use DirectoryTree\Bartender\UserProviderHandler;
+
+class MicrosoftUserHandler extends UserProviderHandler
+{
+    /**
+     * Handle redirecting the user to Microsoft.
+     */
+    public function redirect(Provider $provider, string $driver): RedirectResponse
+    {
+        $provider->scopes([
+            'Mail.ReadWrite',
+            // ...
+        ]);
+    
+        return parent::redirect($provider, $driver);
+    }
+}
+```
+
+Then register it as the handler:
+
+```php
+Bartender::serve('microsoft', MicrosoftUserHandler::class);
+```
+
 ### User Creation & Updating
 
 If you would like to customize the creation of the user in the default
