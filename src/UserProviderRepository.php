@@ -47,6 +47,8 @@ class UserProviderRepository implements ProviderRepository
             array_merge([
                 'name' => $user->name,
                 'provider_id' => $user->id,
+                'provider_access_token' => $user->token,
+                'provider_refresh_token' => $user->refreshToken,
                 'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
             ],
                 $this->isUsingSoftDeletes($model)
