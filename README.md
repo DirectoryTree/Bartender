@@ -226,7 +226,8 @@ class User extends Authenticatable implements StoresProviderTokens
 Otherwise, if you do not need to store these tokens, you are free to delete the 
 published `2024_10_27_131354_add_provider_token_columns_to_users_table.php` 
 migration file and omit applying the `StoresProviderTokens` interface.
-Bartender will skip storing these tokens in such case.
+Bartender will skip storing these tokens as it does not
+require them to successfully authenticate users.
 
 ## Extending & Customizing
 
