@@ -57,7 +57,7 @@ Then, publish the migrations. They will create the required columns on the `user
 php artisan vendor:publish --provider="DirectoryTree\Bartender\BartenderServiceProvider"
 ```
 
-Finally, run the migration:
+Finally, run the migrations:
 
 ```bash
 php artisan migrate
