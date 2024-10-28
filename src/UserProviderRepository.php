@@ -47,8 +47,6 @@ class UserProviderRepository implements ProviderRepository
             array_merge([
                 'name' => $user->name,
                 'provider_id' => $user->id,
-                'provider_access_token' => $user->token,
-                'provider_refresh_token' => $user->refreshToken,
                 'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
             ],
                 $this->isUsingSoftDeletes($model)
@@ -56,7 +54,12 @@ class UserProviderRepository implements ProviderRepository
                     : [],
                 $this->isVerifyingEmails($model)
                     ? ['email_verified_at' => $eloquent->email_verified_at ?? now()]
-                    : []
+                    : [],
+                $this->isStoringTokens($model)
+                    ? [
+                    'provider_access_token' => $user->token,
+                    'provider_refresh_token' => $this->getRefreshToken($user, $eloquent->provider_refresh_token),
+                ]: [],
             )
         )->save();
 
@@ -80,6 +83,16 @@ class UserProviderRepository implements ProviderRepository
     }
 
     /**
+     * Get the refresh token from the Socialite user.
+     */
+    protected function getRefreshToken(SocialiteUser $user, ?string $default = null): ?string
+    {
+        return $user->refreshToken
+            ?? $user->tokenSecret
+            ?? $default;
+    }
+
+    /**
      * Get a new user query instance.
      *
      * @param  class-string  $model
@@ -94,7 +107,15 @@ class UserProviderRepository implements ProviderRepository
     }
 
     /**
-     * Determine if the given model uses soft deletes.
+     * Determine if the given model is storing Socialite tokens.
+     */
+    protected function isStoringTokens(string $model): bool
+    {
+        return in_array(StoresProviderTokens::class, class_implements($model));
+    }
+
+    /**
+     * Determine if the given model is using soft deletes.
      */
     protected function isUsingSoftDeletes(string $model): bool
     {
