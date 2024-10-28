@@ -2,6 +2,4 @@
 
 namespace DirectoryTree\Bartender;
 
-interface StoresProviderTokens
-{
-}
+interface StoresProviderTokens {}

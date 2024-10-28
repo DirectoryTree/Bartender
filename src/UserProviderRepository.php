@@ -57,9 +57,9 @@ class UserProviderRepository implements ProviderRepository
                     : [],
                 $this->isStoringTokens($model)
                     ? [
-                    'provider_access_token' => $user->token,
-                    'provider_refresh_token' => $this->getRefreshToken($user, $eloquent->provider_refresh_token),
-                ]: [],
+                        'provider_access_token' => $user->token,
+                        'provider_refresh_token' => $this->getRefreshToken($user, $eloquent->provider_refresh_token),
+                    ] : [],
             )
         )->save();
 
