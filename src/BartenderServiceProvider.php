@@ -24,6 +24,7 @@ class BartenderServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../database/migrations/2024_03_31_000001_add_provider_columns_to_users_table.php' => database_path('migrations/2024_03_31_000001_add_provider_columns_to_users_table.php'),
+            __DIR__.'/../database/migrations/2024_10_27_131354_add_provider_token_columns_to_users_table.php' => database_path('migrations/2024_10_27_131354_add_provider_token_columns_to_users_table.php'),
         ], 'bartender-migrations');
     }
 

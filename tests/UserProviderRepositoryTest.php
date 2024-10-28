@@ -48,6 +48,8 @@ it('creates new user', function () {
         $user->id = '1';
         $user->name = 'foo';
         $user->email = 'foo@email.com';
+        $user->token = '1234';
+        $user->refreshToken = '2345';
     });
 
     $user = (new UserProviderRepository)->updateOrCreate('foo', $socialite);
@@ -57,6 +59,8 @@ it('creates new user', function () {
     expect($user->email)->toBe('foo@email.com');
     expect($user->provider_id)->toBe('1');
     expect($user->provider_name)->toBe('foo');
+    expect($user->provider_access_token)->toBe('1234');
+    expect($user->provider_refresh_token)->toBe('2345');
 });
 
 it('updates user not associated to provider', function () {
@@ -81,6 +85,8 @@ it('updates user not associated to provider', function () {
     expect($user->email)->toBe('foo@email.com');
     expect($user->provider_id)->toBe('1');
     expect($user->provider_name)->toBe('foo');
+    expect($user->provider_access_token)->toBeNull();
+    expect($user->provider_refresh_token)->toBeNull();
 });
 
 it('throws exception when attempting to create existing user with null provider', function () {
