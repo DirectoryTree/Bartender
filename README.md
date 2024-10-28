@@ -25,6 +25,9 @@ Almost everything in Bartender can be customized.
 - [Installation](#installation)
 - [Setup](#setup)
 - [Usage](#usage)
+  - [Soft Deletes](#soft-deletes)
+  - [Email Verification](#email-verification)
+  - [Access/Refresh Tokens](#accessrefresh-tokens)
 - [Extending & Customizing](#extending--customizing)
 
 ## Requirements
@@ -41,9 +44,14 @@ You can install the package via composer:
 composer require directorytree/bartender
 ```
 
-Then, publish the migration:
+Then, publish the migrations. They will create the required columns on the `users` table:
 
-> It creates the `provider_id` and `provider_name` column on the `users` table.
+- `provider_id`
+- `provider_name`
+- `provider_access_token`
+- `provider_refresh_token`
+
+> If your application does not need to store/access provider tokens, you may delete the `2024_10_27_131354_add_provider_token_columns_to_users_table.php` migration.
 
 ```bash
 php artisan vendor:publish --provider="DirectoryTree\Bartender\BartenderServiceProvider"
@@ -164,9 +172,61 @@ To change this behaviour, [swap out the repository](#user-creation--updating).
 
 ### Email Verification
 
-With the default `UserProviderRepository`, users will emails will be automatically verified (via the `email_verified_at` column) if it is not already set.
+With the default `UserProviderRepository`, users with emails will be automatically verified (via the `email_verified_at` column) if it is not already set.
 
 To change this behaviour, [swap out the repository](#user-creation--updating).
+
+### Access/Refresh Tokens
+
+To enable storing the authentication provider access and refresh tokens 
+on your user so that you can access them later, you may apply the
+`StoresProviderTokens` interface on your model:
+
+```php
+// app/Models/User.php
+
+namespace App\Models;
+
+use DirectoryTree\Bartender\StoresProviderTokens;
+
+class User extends Authenticatable implements StoresProviderTokens
+{
+    // ...    
+}
+```
+
+You may also want to add these columns to your model's `$hidden` attributes, as well as `encrypted` casts for additional security:
+
+```php
+// app/Models/User.php
+
+class User extends Authenticatable implements StoresProviderTokens
+{
+    /**
+     * The attributes that should be hidden for serialization.
+     */
+    protected $hidden = [
+        'provider_access_token',
+        'provider_refresh_token'
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     */
+    protected function casts(): array
+    {
+        return [
+            'provider_access_token' => 'encrypted',
+            'provider_refresh_token' => 'encrypted',
+        ];
+    }
+}
+```
+
+Otherwise, if you do not need to store these tokens, you are free to delete the 
+published `2024_10_27_131354_add_provider_token_columns_to_users_table.php` 
+migration file and omit applying the `StoresProviderTokens` interface.
+Bartender will skip storing these tokens in such case.
 
 ## Extending & Customizing
 
@@ -242,6 +302,8 @@ You may also extend the built-in `UserProviderHandler` implementation if you pre
 For example, if you need to adjust the scopes for a single provider:
 
 ```php
+// app/Socialite/MicrosoftUserHandler.php
+
 namespace App\Socialite;
 
 use Illuminate\Http\RedirectResponse;
