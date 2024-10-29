@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->after('provider_name', function (Blueprint $table) {
-                $table->string('provider_access_token')->nullable();
-                $table->string('provider_refresh_token')->nullable();
+                $table->text('provider_access_token')->nullable();
+                $table->text('provider_refresh_token')->nullable();
             });
         });
     }
