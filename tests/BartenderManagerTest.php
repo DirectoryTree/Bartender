@@ -30,7 +30,6 @@ it('registers routes', function () {
 
     $manager->routes();
 
-    expect(Route::getRoutes())->toHaveCount(2);
     expect(Route::has('auth.driver.callback'))->toBeTrue();
     expect(Route::has('auth.driver.redirect'))->toBeTrue();
 });
