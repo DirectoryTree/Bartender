@@ -15,7 +15,7 @@ An opinionated way to authenticate users using Laravel Socialite.
 
 ---
 
-Bartender serves you a controller, routes, and a default implementation for handling authentication with Laravel Socialite providers.
+Bartender serves you a controller, routes, and a default implementation for easily handling authentication with Laravel Socialite providers.
 
 Almost everything in Bartender can be customized.
 
