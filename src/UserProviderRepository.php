@@ -19,7 +19,7 @@ class UserProviderRepository implements ProviderRepository
     public function exists(string $driver, SocialiteUser $user): bool
     {
         return $this->newUserQuery(Bartender::getUserModel())
-            ->where('email', '=', $user->email)
+            ->where('email', $user->email)
             ->where(fn (Builder $query) => (
                 $query
                     ->whereNull('provider_name')
