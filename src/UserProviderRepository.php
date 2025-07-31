@@ -19,7 +19,7 @@ class UserProviderRepository implements ProviderRepository
     public function exists(string $driver, SocialiteUser $user): bool
     {
         return $this->newUserQuery(Bartender::getUserModel())
-            ->where('email', $user->email)
+            ->where('email', $user->getEmail())
             ->where(fn (Builder $query) => (
                 $query
                     ->whereNull('provider_name')
@@ -35,51 +35,55 @@ class UserProviderRepository implements ProviderRepository
     {
         $model = Bartender::getUserModel();
 
+        /** @var Authenticatable $eloquent */
         $eloquent = $this->newUserQuery($model)->firstWhere([
-            'email' => $user->email,
+            'email' => $user->getEmail(),
             'provider_name' => $driver,
         ]) ?? (new $model)->forceFill([
-            'email' => $user->email,
+            'email' => $user->getEmail(),
             'provider_name' => $driver,
         ]);
 
         $eloquent->forceFill(
-            array_merge([
-                'name' => $user->name,
-                'provider_id' => $user->id,
-                'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
-            ],
-                $this->isUsingSoftDeletes($model)
-                    ? ['deleted_at' => null]
-                    : [],
-                $this->isVerifyingEmails($model)
-                    ? ['email_verified_at' => $eloquent->email_verified_at ?? now()]
-                    : [],
-                $this->isStoringTokens($model)
-                    ? [
-                        'provider_access_token' => $user->token,
-                        'provider_refresh_token' => $this->getRefreshToken($user, $eloquent->provider_refresh_token),
-                    ] : [],
-            )
+            $this->getUserAttributes($model, $user, $eloquent)
         )->save();
 
         return $eloquent;
     }
 
     /**
-     * Hash the given value.
+     * Get the user attributes to be stored.
+     *
+     * @param  class-string  $model
      */
-    protected function hash(string $value): string
+    protected function getUserAttributes(string $model, SocialiteUser $user, Authenticatable $eloquent): array
     {
-        return Hash::make($value);
+        return array_merge(
+            [
+                'name' => $user->getName(),
+                'provider_id' => $user->getId(),
+                'password' => $eloquent->getAuthPassword() ?? $this->getHashedValue($this->getNewPassword()),
+            ],
+            $this->isUsingSoftDeletes($model)
+                ? ['deleted_at' => null]
+                : [],
+            $this->isVerifyingEmails($model)
+                ? ['email_verified_at' => $eloquent->email_verified_at ?? now()]
+                : [],
+            $this->isStoringTokens($model)
+                ? [
+                    'provider_access_token' => $this->getAccessToken($user, $eloquent->provider_access_token),
+                    'provider_refresh_token' => $this->getRefreshToken($user, $eloquent->provider_refresh_token),
+                ] : [],
+        );
     }
 
     /**
-     * Get a new password for the user.
+     * Get the access token from the Socialite user.
      */
-    protected function getNewPassword(): string
+    protected function getAccessToken(SocialiteUser $user, ?string $default = null): ?string
     {
-        return Str::random();
+        return $user->token ?? $default;
     }
 
     /**
@@ -90,6 +94,22 @@ class UserProviderRepository implements ProviderRepository
         return $user->refreshToken
             ?? $user->tokenSecret
             ?? $default;
+    }
+
+    /**
+     * Hash the given value.
+     */
+    protected function getHashedValue(string $value): string
+    {
+        return Hash::make($value);
+    }
+
+    /**
+     * Get a new password for the user.
+     */
+    protected function getNewPassword(): string
+    {
+        return Str::random();
     }
 
     /**
