@@ -2,9 +2,9 @@
 
 namespace DirectoryTree\Bartender;
 
+use DirectoryTree\Bartender\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
-use DirectoryTree\Bartender\Controllers\AuthController;
 
 class BartenderManager
 {
