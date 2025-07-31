@@ -3,7 +3,6 @@
 namespace DirectoryTree\Bartender;
 
 use Exception;
-use Illuminate\Http\RedirectResponse;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 
@@ -20,7 +19,7 @@ class UserProviderHandler implements ProviderHandler
     /**
      * Handle redirecting the user to the OAuth provider.
      */
-    public function redirect(Provider $provider, string $driver): RedirectResponse
+    public function redirect(Provider $provider, string $driver): mixed
     {
         return $provider->redirect();
     }
@@ -28,7 +27,7 @@ class UserProviderHandler implements ProviderHandler
     /**
      * Handle an OAuth response from the provider.
      */
-    public function callback(Provider $provider, string $driver): RedirectResponse
+    public function callback(Provider $provider, string $driver): mixed
     {
         try {
             /** @var SocialiteUser $socialite */

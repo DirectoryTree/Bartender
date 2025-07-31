@@ -2,11 +2,9 @@
 
 namespace DirectoryTree\Bartender;
 
-use DirectoryTree\Bartender\Controllers\AuthController;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
+use DirectoryTree\Bartender\Controllers\AuthController;
 
 class BartenderManager
 {
@@ -49,7 +47,7 @@ class BartenderManager
     /**
      * Redirect the user to the OAuth provider.
      */
-    public function redirect(string $driver): RedirectResponse
+    public function redirect(string $driver): mixed
     {
         return $this->handler($driver)->redirect(
             Socialite::driver($driver), $driver
@@ -59,7 +57,7 @@ class BartenderManager
     /**
      * Handle an OAuth response from the provider.
      */
-    public function callback(string $driver): RedirectResponse
+    public function callback(string $driver): mixed
     {
         return $this->handler($driver)->callback(
             Socialite::driver($driver), $driver
