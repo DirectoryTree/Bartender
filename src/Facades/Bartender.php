@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static void serve(string $driver, ?string $handler = null)
  * @method static \Illuminate\Http\RedirectResponse redirect(string $driver)
  * @method static \Illuminate\Http\RedirectResponse callback(string $driver)
+ *
+ * @see \DirectoryTree\Bartender\BartenderManager
  */
 class Bartender extends Facade
 {
