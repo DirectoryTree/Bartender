@@ -166,13 +166,13 @@ route, which will automatically create or update their application user account.
 
 ### Soft Deletes
 
-With the default `UserProviderRepository`, users will be restored if they are soft-deleted and the login with their provider.
+With the default `UserProviderRepository`, soft-deleted users will be restored if they log in with their provider.
 
 To change this behaviour, [swap out the repository](#user-creation--updating).
 
 ### Email Verification
 
-With the default `UserProviderRepository`, users with emails will be automatically verified (via the `email_verified_at` column) if it is not already set.
+With the default `UserProviderRepository`, users with emails will be automatically verified (by setting the `email_verified_at` timestamp column) if it is not already set.
 
 To change this behaviour, [swap out the repository](#user-creation--updating).
 
@@ -195,7 +195,7 @@ class User extends Authenticatable implements StoresProviderTokens
 }
 ```
 
-You may also want to add these columns to your model's `$hidden` attributes, as well as `encrypted` casts for additional security:
+You may also want to add these columns to your model's `$hidden` attributes, along with `encrypted` casts for additional security:
 
 ```php
 // app/Models/User.php
