@@ -1,23 +1,29 @@
 <p align="center">
-<img src="https://github.com/DirectoryTree/Bartender/blob/master/art/logo.svg" width="250">
+    <img src="https://github.com/DirectoryTree/Bartender/blob/master/art/logo.svg" width="300" alt="Bartender">
+</p>
+
+<p align="center">An opinionated way to authenticate users using Laravel Socialite.</p>
+
+<p align="center">
+    <a href="https://github.com/DirectoryTree/Bartender/actions/workflows/run-tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/DirectoryTree/Bartender/run-tests.yml?branch=master&amp;style=flat-square" alt="Tests"></a>
+    <a href="https://packagist.org/packages/directorytree/bartender"><img src="https://img.shields.io/packagist/dt/directorytree/bartender.svg?style=flat-square" alt="Total Downloads"></a>
+    <a href="https://packagist.org/packages/directorytree/bartender"><img src="https://img.shields.io/packagist/v/directorytree/bartender.svg?style=flat-square" alt="Latest Version"></a>
+    <a href="https://github.com/DirectoryTree/Bartender/blob/master/license.md"><img src="https://img.shields.io/github/license/DirectoryTree/Bartender?style=flat-square" alt="License"></a>
 </p>
 
 <p align="center">
-An opinionated way to authenticate users using Laravel Socialite.
-</p>
-
-<p align="center">
-<a href="https://github.com/directorytree/bartender/actions" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/directorytree/bartender/run-tests.yml?branch=master&style=flat-square"/></a>
-<a href="https://packagist.org/packages/directorytree/bartender" target="_blank"><img src="https://img.shields.io/packagist/v/directorytree/bartender.svg?style=flat-square"/></a>
-<a href="https://packagist.org/packages/directorytree/bartender" target="_blank"><img src="https://img.shields.io/packagist/dt/directorytree/bartender.svg?style=flat-square"/></a>
-<a href="https://packagist.org/packages/directorytree/bartender" target="_blank"><img src="https://img.shields.io/packagist/l/directorytree/bartender.svg?style=flat-square"/></a>
+    <a href="#contents">Contents</a>
+    <span> · </span>
+    <a href="#installation">Installation</a>
+    <span> · </span>
+    <a href="#usage">Usage</a>
 </p>
 
 ---
 
 Bartender serves you a controller, routes, and a default implementation for easily handling authentication with Laravel Socialite providers. Almost everything in Bartender can be customized.
 
-## Index
+## Contents
 
 - [Requirements](#requirements)
 - [Installation](#installation)
