@@ -21,6 +21,27 @@ class BartenderManager
     protected array $handlers = [];
 
     /**
+     * Whether provider sign-in may restore a soft-deleted user.
+     */
+    protected bool $restoreSoftDeletedUsers = true;
+
+    /**
+     * Configure automatic restoration during provider sign-in.
+     */
+    public function restoreSoftDeletedUsers(bool $restore = true): void
+    {
+        $this->restoreSoftDeletedUsers = $restore;
+    }
+
+    /**
+     * Determine whether provider sign-in may restore a soft-deleted user.
+     */
+    public function shouldRestoreSoftDeletedUsers(): bool
+    {
+        return $this->restoreSoftDeletedUsers;
+    }
+
+    /**
      * Set the user model class name.
      */
     public function setUserModel(string $userModel): void

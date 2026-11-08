@@ -19,6 +19,10 @@ class UserProviderRepository implements ProviderRepository
      */
     public function exists(string $driver, SocialiteUser $user): bool
     {
+        if ($this->isDeleted($driver, $user)) {
+            return true;
+        }
+
         return $this->newUserQuery(Bartender::getUserModel())
             ->where('email', $user->email)
             ->where(fn (Builder $query) => (
@@ -72,6 +76,28 @@ class UserProviderRepository implements ProviderRepository
         )->save();
 
         return $eloquent;
+    }
+
+    /**
+     * Reject deleted accounts by identity or email when restoration is disabled.
+     */
+    protected function isDeleted(string $driver, SocialiteUser $user): bool
+    {
+        $model = Bartender::getUserModel();
+
+        if (Bartender::shouldRestoreSoftDeletedUsers() || ! $this->isUsingSoftDeletes($model)) {
+            return false;
+        }
+
+        return $model::onlyTrashed()
+            ->where(function (Builder $query) use ($driver, $user) {
+                $query->where('email', $user->getEmail())
+                    ->orWhere(function (Builder $query) use ($driver, $user) {
+                        $query->where('provider_name', $driver)
+                            ->where('provider_id', $user->getId());
+                    });
+            })
+            ->exists();
     }
 
     /**

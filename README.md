@@ -179,7 +179,17 @@ link accounts by email.
 
 With the default `UserProviderRepository`, soft-deleted users will be restored if they log in with their provider.
 
-To change this behaviour, [swap out the repository](#user-creation--updating).
+To prevent provider sign-in from restoring or recreating a soft-deleted account, disable
+restoration in your service provider:
+
+```php
+Bartender::restoreSoftDeletedUsers(false);
+```
+
+Automatic restoration remains enabled by default. When disabled, Bartender rejects
+a deleted account by its provider identity or email address, including when the
+provider reports a different email. You can also [swap out the repository](#user-creation--updating)
+for a custom policy.
 
 ### Email Verification
 
