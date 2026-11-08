@@ -3,7 +3,7 @@
 use DirectoryTree\Bartender\Facades\Bartender;
 use DirectoryTree\Bartender\Tests\User;
 use DirectoryTree\Bartender\UserProviderRepository;
-use Illuminate\Database\QueryException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
@@ -96,7 +96,6 @@ it('throws exception when attempting to create existing user with null provider'
         'password' => 'password',
     ]);
 
-    $this->expectException(QueryException::class);
 
     $socialite = tap(new SocialiteUser, function (SocialiteUser $user) {
         $user->id = '1';
@@ -104,7 +103,7 @@ it('throws exception when attempting to create existing user with null provider'
         $user->email = 'foo@email.com';
     });
 
-    (new UserProviderRepository)->updateOrCreate('foo', $socialite);
+    expect(fn () => (new UserProviderRepository)->updateOrCreate('foo', $socialite))->toThrow(AuthenticationException::class);
 });
 
 it('throws exception when attempting to create existing user with another provider', function () {
@@ -122,7 +121,63 @@ it('throws exception when attempting to create existing user with another provid
         $user->email = 'foo@email.com';
     });
 
-    $this->expectException(QueryException::class);
 
-    (new UserProviderRepository)->updateOrCreate('bar', $socialite);
+    expect(fn () => (new UserProviderRepository)->updateOrCreate('bar', $socialite))->toThrow(AuthenticationException::class);
+});
+
+
+it('keeps the same account when its provider email changes', function () {
+    $account = User::create([
+        'provider_name' => 'foo', 'provider_id' => '123', 'name' => 'Before',
+        'email' => 'old@example.com', 'password' => 'password',
+        'provider_refresh_token' => 'refresh-token',
+    ]);
+    $identity = (new SocialiteUser)->map([
+        'id' => '123', 'name' => 'After', 'email' => 'new@example.com',
+    ]);
+    $identity->token = 'new-token';
+
+    $result = (new UserProviderRepository)->updateOrCreate('foo', $identity);
+
+    expect($result->id)->toBe($account->id)
+        ->and($account->fresh()->email)->toBe('new@example.com')
+        ->and($account->fresh()->provider_refresh_token)->toBe('refresh-token')
+        ->and(User::count())->toBe(1);
+});
+
+it('rejects a different identity with an existing email without changing the account', function (string $driver) {
+    $account = User::create([
+        'provider_name' => 'foo', 'provider_id' => 'original', 'name' => 'Original',
+        'email' => 'person@example.com', 'password' => 'password',
+        'provider_access_token' => 'original-token',
+    ]);
+    $identity = (new SocialiteUser)->map([
+        'id' => 'different', 'name' => 'Different', 'email' => 'person@example.com',
+    ]);
+
+    $repository = new UserProviderRepository;
+    expect($repository->exists($driver, $identity))->toBeTrue();
+    expect(fn () => $repository->updateOrCreate($driver, $identity))->toThrow(AuthenticationException::class);
+    expect($account->fresh()->provider_id)->toBe('original')
+        ->and($account->fresh()->provider_access_token)->toBe('original-token')
+        ->and(User::count())->toBe(1);
+})->with(['foo', 'bar']);
+
+it('rejects a changed provider email that belongs to another account', function () {
+    $account = User::create([
+        'provider_name' => 'foo', 'provider_id' => '123', 'name' => 'Original',
+        'email' => 'original@example.com', 'password' => 'password',
+    ]);
+    $other = User::create([
+        'provider_name' => 'foo', 'provider_id' => '456', 'name' => 'Other',
+        'email' => 'other@example.com', 'password' => 'password',
+    ]);
+    $identity = (new SocialiteUser)->map([
+        'id' => '123', 'name' => 'Updated', 'email' => 'other@example.com',
+    ]);
+
+    expect(fn () => (new UserProviderRepository)->updateOrCreate('foo', $identity))
+        ->toThrow(AuthenticationException::class);
+    expect($account->fresh()->email)->toBe('original@example.com')
+        ->and($other->fresh()->provider_id)->toBe('456');
 });

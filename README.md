@@ -168,6 +168,13 @@ route, which will automatically create or update their application user account.
 > one of the login links, you have forgotten to register your the Socialite provider with
 > Bartender using `Bartender::serve()` in your `AppServiceProvider`.
 
+### Provider Identity
+
+Returning users are matched by provider name and provider ID. Their email address and
+profile information are updated when the provider reports a change. An email address
+already belonging to another identity is rejected; Bartender does not automatically
+link accounts by email.
+
 ### Soft Deletes
 
 With the default `UserProviderRepository`, soft-deleted users will be restored if they log in with their provider.

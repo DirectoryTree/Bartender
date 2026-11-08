@@ -3,6 +3,7 @@
 namespace DirectoryTree\Bartender;
 
 use DirectoryTree\Bartender\Facades\Bartender;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,7 +15,7 @@ use Laravel\Socialite\Contracts\User as SocialiteUser;
 class UserProviderRepository implements ProviderRepository
 {
     /**
-     * Determine if the user already exists under a different provider.
+     * Determine whether the email address belongs to a different identity.
      */
     public function exists(string $driver, SocialiteUser $user): bool
     {
@@ -24,6 +25,8 @@ class UserProviderRepository implements ProviderRepository
                 $query
                     ->whereNull('provider_name')
                     ->orWhere('provider_name', '!=', $driver)
+                    ->orWhereNull('provider_id')
+                    ->orWhere('provider_id', '!=', $user->getId())
             ))
             ->exists();
     }
@@ -33,11 +36,15 @@ class UserProviderRepository implements ProviderRepository
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
+        if ($this->exists($driver, $user)) {
+            throw new AuthenticationException('The email address belongs to another identity.');
+        }
+
         $model = Bartender::getUserModel();
 
         $eloquent = $this->newUserQuery($model)->firstWhere([
-            'email' => $user->email,
             'provider_name' => $driver,
+            'provider_id' => $user->getId(),
         ]) ?? (new $model)->forceFill([
             'email' => $user->email,
             'provider_name' => $driver,
@@ -45,6 +52,7 @@ class UserProviderRepository implements ProviderRepository
 
         $eloquent->forceFill(
             array_merge([
+                'email' => $user->getEmail(),
                 'name' => $user->name,
                 'provider_id' => $user->id,
                 'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
