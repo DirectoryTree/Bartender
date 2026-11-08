@@ -96,7 +96,6 @@ it('throws exception when attempting to create existing user with null provider'
         'password' => 'password',
     ]);
 
-
     $socialite = tap(new SocialiteUser, function (SocialiteUser $user) {
         $user->id = '1';
         $user->name = 'foo';
@@ -121,10 +120,8 @@ it('throws exception when attempting to create existing user with another provid
         $user->email = 'foo@email.com';
     });
 
-
     expect(fn () => (new UserProviderRepository)->updateOrCreate('bar', $socialite))->toThrow(AuthenticationException::class);
 });
-
 
 it('keeps the same account when its provider email changes', function () {
     $account = User::create([
