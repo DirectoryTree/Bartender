@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static void routes()
  * @method static array handlers()
+ * @method static void dontRestoreSoftDeletedUsers(bool $dontRestore = true)
+ * @method static bool shouldRestoreSoftDeletedUsers()
  * @method static string getUserModel()
  * @method static void setUserModel(string $userModel)
  * @method static void serve(string $driver, ?string $handler = null)
