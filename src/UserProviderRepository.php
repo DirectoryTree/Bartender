@@ -3,6 +3,7 @@
 namespace DirectoryTree\Bartender;
 
 use DirectoryTree\Bartender\Facades\Bartender;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,18 +15,23 @@ use Laravel\Socialite\Contracts\User as SocialiteUser;
 class UserProviderRepository implements ProviderRepository
 {
     /**
-     * Determine if the user already exists under a different provider.
+     * Determine whether the email address belongs to a different identity.
      */
     public function exists(string $driver, SocialiteUser $user): bool
     {
+        $providerId = (string) $user->getId();
+
+        if (blank($providerId)) {
+            throw new AuthenticationException('The provider did not return a user ID.');
+        }
+
         return $this->newUserQuery(Bartender::getUserModel())
-            ->where('email', $user->email)
-            ->where(fn (Builder $query) => (
-                $query
-                    ->whereNull('provider_name')
-                    ->orWhere('provider_name', '!=', $driver)
-            ))
-            ->exists();
+            ->where('email', $user->getEmail())
+            ->get(['provider_name', 'provider_id'])
+            ->contains(fn ($account) => (
+                $account->provider_name !== $driver
+                || (string) $account->provider_id !== $providerId
+            ));
     }
 
     /**
@@ -33,20 +39,33 @@ class UserProviderRepository implements ProviderRepository
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
+        $providerId = (string) $user->getId();
+
+        if ($this->exists($driver, $user)) {
+            throw new AuthenticationException('The email address belongs to another identity.');
+        }
+
         $model = Bartender::getUserModel();
 
         $eloquent = $this->newUserQuery($model)->firstWhere([
-            'email' => $user->email,
             'provider_name' => $driver,
-        ]) ?? (new $model)->forceFill([
-            'email' => $user->email,
+            'provider_id' => $providerId,
+        ]);
+
+        if ($eloquent && ($eloquent->provider_name !== $driver || (string) $eloquent->provider_id !== $providerId)) {
+            throw new AuthenticationException('The provider identity does not exactly match the existing account.');
+        }
+
+        $eloquent ??= (new $model)->forceFill([
+            'email' => $user->getEmail(),
             'provider_name' => $driver,
         ]);
 
         $eloquent->forceFill(
             array_merge([
-                'name' => $user->name,
-                'provider_id' => $user->id,
+                'email' => $user->getEmail(),
+                'name' => $user->getName(),
+                'provider_id' => $providerId,
                 'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
             ],
                 $this->isUsingSoftDeletes($model)
