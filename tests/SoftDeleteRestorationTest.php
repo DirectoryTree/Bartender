@@ -66,3 +66,86 @@ it('allows active accounts and models without soft deletes when restoration is d
     Bartender::setUserModel(User::class);
     expect((new UserProviderRepository)->updateOrCreate('foo', $identity)->id)->toBe($account->id);
 });
+
+it('allows an active identity to change email without matching unrelated deleted accounts', function (string $deletedDriver, string $deletedId) {
+    Bartender::restoreSoftDeletedUsers(false);
+    $account = SoftDeletingUser::create([
+        'name' => 'Active', 'email' => 'active@example.com', 'password' => 'password',
+        'provider_name' => 'foo', 'provider_id' => '123',
+    ]);
+    $deleted = SoftDeletingUser::create([
+        'name' => 'Deleted', 'email' => 'deleted@example.com', 'password' => 'password',
+        'provider_name' => $deletedDriver, 'provider_id' => $deletedId,
+    ]);
+    $deleted->delete();
+    $identity = (new SocialiteUser)->map([
+        'id' => '123', 'name' => 'Updated', 'email' => 'changed@example.com',
+    ]);
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeFalse();
+    expect($repository->updateOrCreate('foo', $identity)->id)->toBe($account->id);
+    expect($account->fresh()->email)->toBe('changed@example.com')
+        ->and($deleted->fresh()->trashed())->toBeTrue()
+        ->and($deleted->fresh()->email)->toBe('deleted@example.com')
+        ->and(SoftDeletingUser::withTrashed()->count())->toBe(2);
+})->with([
+    'same provider, different ID' => ['foo', '456'],
+    'different provider, same ID' => ['bar', '123'],
+]);
+
+it('rejects email conflicts without restoring the matching deleted identity', function (bool $restore) {
+    Bartender::restoreSoftDeletedUsers($restore);
+    $active = SoftDeletingUser::create([
+        'name' => 'Active', 'email' => 'taken@example.com', 'password' => 'password',
+        'provider_name' => 'foo', 'provider_id' => '456',
+    ]);
+    $deleted = SoftDeletingUser::create([
+        'name' => 'Deleted', 'email' => 'old@example.com', 'password' => 'password',
+        'provider_name' => 'foo', 'provider_id' => '123',
+        'provider_access_token' => 'original-token',
+    ]);
+    $deleted->delete();
+    $identity = (new SocialiteUser)->map([
+        'id' => '123', 'name' => 'Incoming', 'email' => 'taken@example.com',
+    ]);
+    $identity->token = 'incoming-token';
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeTrue();
+    expect(fn () => $repository->updateOrCreate('foo', $identity))
+        ->toThrow(AuthenticationException::class);
+    expect($deleted->fresh()->trashed())->toBeTrue()
+        ->and($deleted->fresh()->email)->toBe('old@example.com')
+        ->and($deleted->fresh()->provider_access_token)->toBe('original-token')
+        ->and($active->fresh()->email)->toBe('taken@example.com')
+        ->and($active->fresh()->provider_id)->toBe('456');
+})->with([true, false]);
+
+it('respects a custom soft delete column when matching changed emails', function () {
+    Schema::table('users', function (Blueprint $table) {
+        $table->softDeletes('archived_at');
+    });
+    $model = new class extends SoftDeletingUser
+    {
+        public const DELETED_AT = 'archived_at';
+    };
+    Bartender::setUserModel($model::class);
+    Bartender::restoreSoftDeletedUsers(false);
+    $account = $model::create([
+        'name' => 'Deleted', 'email' => 'old@example.com', 'password' => 'password',
+        'provider_name' => 'foo', 'provider_id' => '123',
+    ]);
+    $account->delete();
+    $identity = (new SocialiteUser)->map([
+        'id' => '123', 'name' => 'Incoming', 'email' => 'changed@example.com',
+    ]);
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeTrue();
+    expect(fn () => $repository->updateOrCreate('foo', $identity))
+        ->toThrow(AuthenticationException::class);
+    expect($account->fresh()->trashed())->toBeTrue()
+        ->and($account->fresh()->email)->toBe('old@example.com');
+
+});
