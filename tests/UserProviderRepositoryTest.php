@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
+use function Pest\test;
+
 beforeEach(fn () => Bartender::setUserModel(User::class));
 
 it('determines if user already exists with a different provider', function () {
@@ -224,6 +226,10 @@ it('accepts zero as a provider ID', function ($id) {
 })->with([0, '0']);
 
 it('rejects inexact identities on case insensitive columns', function (string $storedDriver, string $driver, string $storedId, string $id, bool $sameEmail) {
+    if (DB::getDriverName() !== 'sqlite') {
+        test()->markTestSkipped('This regression fixture requires SQLite NOCASE columns.');
+    }
+
     Schema::drop('users');
     DB::statement('CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -264,6 +270,10 @@ it('rejects inexact identities on case insensitive columns', function (string $s
 ])->with([true, false]);
 
 it('updates exact identities on case insensitive columns', function () {
+    if (DB::getDriverName() !== 'sqlite') {
+        test()->markTestSkipped('This regression fixture requires SQLite NOCASE columns.');
+    }
+
     Schema::drop('users');
     DB::statement('CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -292,5 +302,40 @@ it('updates exact identities on case insensitive columns', function () {
     expect($account->fresh()->email)->toBe('updated@example.com')
         ->and($account->fresh()->provider_access_token)->toBe('updated-token')
         ->and($account->fresh()->provider_refresh_token)->toBe('original-refresh')
+        ->and(User::count())->toBe(1);
+});
+
+it('uses Socialite accessors when public profile properties differ', function () {
+    $account = User::create([
+        'provider_name' => 'foo', 'provider_id' => '123',
+        'name' => 'Original', 'email' => 'original@example.com', 'password' => 'password',
+    ]);
+    $identity = new class extends SocialiteUser
+    {
+        public function getId()
+        {
+            return '123';
+        }
+
+        public function getEmail()
+        {
+            return 'updated@example.com';
+        }
+
+        public function getName()
+        {
+            return 'Updated Name';
+        }
+    };
+    $identity->id = 'stale-id';
+    $identity->email = 'stale@example.com';
+    $identity->name = 'Stale Name';
+
+    $result = (new UserProviderRepository)->updateOrCreate('foo', $identity);
+
+    expect($result->id)->toBe($account->id)
+        ->and($result->provider_id)->toBe('123')
+        ->and($result->email)->toBe('updated@example.com')
+        ->and($result->name)->toBe('Updated Name')
         ->and(User::count())->toBe(1);
 });

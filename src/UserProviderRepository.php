@@ -61,14 +61,14 @@ class UserProviderRepository implements ProviderRepository
         }
 
         $eloquent ??= (new $model)->forceFill([
-            'email' => $user->email,
+            'email' => $user->getEmail(),
             'provider_name' => $driver,
         ]);
 
         $eloquent->forceFill(
             array_merge([
                 'email' => $user->getEmail(),
-                'name' => $user->name,
+                'name' => $user->getName(),
                 'provider_id' => $providerId,
                 'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
             ],
