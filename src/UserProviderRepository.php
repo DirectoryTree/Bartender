@@ -25,30 +25,15 @@ class UserProviderRepository implements ProviderRepository
             throw new AuthenticationException('The provider did not return a user ID.');
         }
 
-        $model = Bartender::getUserModel();
-        $rejectDeleted = ! Bartender::shouldRestoreSoftDeletedUsers() && $this->isUsingSoftDeletes($model);
-        $columns = ['provider_name', 'provider_id'];
-
-        if ($rejectDeleted) {
-            $columns[] = (new $model)->getDeletedAtColumn();
+        if ($this->isDeleted($driver, $user)) {
+            return true;
         }
 
-        return $this->newUserQuery($model)
-            ->where(function (Builder $query) use ($driver, $providerId, $user, $rejectDeleted) {
-                $query->where('email', $user->getEmail());
-
-                if ($rejectDeleted) {
-                    $query->orWhere(function (Builder $query) use ($driver, $providerId) {
-                        $query->whereNotNull($query->getModel()->getQualifiedDeletedAtColumn())
-                            ->where('provider_name', $driver)
-                            ->where('provider_id', $providerId);
-                    });
-                }
-            })
-            ->get($columns)
+        return $this->newUserQuery(Bartender::getUserModel())
+            ->where('email', $user->getEmail())
+            ->get(['provider_name', 'provider_id'])
             ->contains(fn ($account) => (
-                ($rejectDeleted && $account->trashed())
-                || $account->provider_name !== $driver
+                $account->provider_name !== $driver
                 || (string) $account->provider_id !== $providerId
             ));
     }
@@ -102,6 +87,28 @@ class UserProviderRepository implements ProviderRepository
         )->save();
 
         return $eloquent;
+    }
+
+    /**
+     * Reject deleted accounts by identity or email when restoration is disabled.
+     */
+    protected function isDeleted(string $driver, SocialiteUser $user): bool
+    {
+        $model = Bartender::getUserModel();
+
+        if (Bartender::shouldRestoreSoftDeletedUsers() || ! $this->isUsingSoftDeletes($model)) {
+            return false;
+        }
+
+        return $model::onlyTrashed()
+            ->where(function (Builder $query) use ($driver, $user) {
+                $query->where('email', $user->getEmail())
+                    ->orWhere(function (Builder $query) use ($driver, $user) {
+                        $query->where('provider_name', $driver)
+                            ->where('provider_id', $user->getId());
+                    });
+            })
+            ->exists();
     }
 
     /**
