@@ -185,7 +185,24 @@ configure case-sensitive provider columns and uniqueness constraints themselves.
 
 With the default `UserProviderRepository`, soft-deleted users will be restored if they log in with their provider.
 
-To change this behaviour, [swap out the repository](#user-creation--updating).
+To prevent provider sign-in from restoring or recreating a soft-deleted account, disable
+restoration in your service provider:
+
+```php
+Bartender::dontRestoreSoftDeletedUsers();
+```
+
+Automatic restoration remains enabled by default. To explicitly allow restoration again,
+call `Bartender::dontRestoreSoftDeletedUsers(false)`. You can inspect the current policy
+with `Bartender::shouldRestoreSoftDeletedUsers()`.
+
+When restoration is disabled, Bartender rejects
+a deleted account by its provider identity or email address, including when the
+provider reports a different email. Rejected deleted accounts raise an
+`AuthenticationException` rather than being reported as email conflicts. The account
+is checked again before updating, and its deletion timestamp is only cleared when
+restoration is enabled. You can also [swap out the repository](#user-creation--updating)
+for a custom policy.
 
 ### Email Verification
 
