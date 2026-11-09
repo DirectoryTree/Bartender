@@ -33,3 +33,19 @@ it('registers routes', function () {
     expect(Route::has('auth.driver.callback'))->toBeTrue();
     expect(Route::has('auth.driver.redirect'))->toBeTrue();
 });
+
+it('allows soft deleted user restoration by default', function () {
+    $manager = new BartenderManager;
+
+    expect($manager->shouldRestoreSoftDeletedUsers())->toBeTrue();
+});
+
+it('can disable and reenable soft deleted user restoration through the facade', function () {
+    Bartender::dontRestoreSoftDeletedUsers();
+
+    expect(Bartender::shouldRestoreSoftDeletedUsers())->toBeFalse();
+
+    Bartender::dontRestoreSoftDeletedUsers(false);
+
+    expect(Bartender::shouldRestoreSoftDeletedUsers())->toBeTrue();
+});
