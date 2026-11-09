@@ -198,9 +198,10 @@ it('rejects missing provider IDs without modifying or creating accounts', functi
     $identity->token = 'incoming-token';
     $repository = new UserProviderRepository;
 
-    expect($repository->exists('foo', $identity))->toBeTrue();
+    expect(fn () => $repository->exists('foo', $identity))
+        ->toThrow(AuthenticationException::class, 'The provider did not return a user ID.');
     expect(fn () => $repository->updateOrCreate('foo', $identity))
-        ->toThrow(AuthenticationException::class);
+        ->toThrow(AuthenticationException::class, 'The provider did not return a user ID.');
     expect(User::count())->toBe($existing ? 1 : 0);
 
     if ($existing) {
