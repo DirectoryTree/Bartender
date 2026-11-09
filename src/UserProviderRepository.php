@@ -19,20 +19,19 @@ class UserProviderRepository implements ProviderRepository
      */
     public function exists(string $driver, SocialiteUser $user): bool
     {
-        if ($this->isDeleted($driver, $user)) {
+        $providerId = (string) $user->getId();
+
+        if (trim($providerId) === '' || $this->isDeleted($driver, $user)) {
             return true;
         }
 
         return $this->newUserQuery(Bartender::getUserModel())
-            ->where('email', $user->email)
-            ->where(fn (Builder $query) => (
-                $query
-                    ->whereNull('provider_name')
-                    ->orWhere('provider_name', '!=', $driver)
-                    ->orWhereNull('provider_id')
-                    ->orWhere('provider_id', '!=', $user->getId())
-            ))
-            ->exists();
+            ->where('email', $user->getEmail())
+            ->get(['provider_name', 'provider_id'])
+            ->contains(fn ($account) => (
+                $account->provider_name !== $driver
+                || (string) $account->provider_id !== $providerId
+            ));
     }
 
     /**
@@ -40,6 +39,12 @@ class UserProviderRepository implements ProviderRepository
      */
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
+        $providerId = (string) $user->getId();
+
+        if (trim($providerId) === '') {
+            throw new AuthenticationException('The provider did not return a user ID.');
+        }
+
         if ($this->exists($driver, $user)) {
             throw new AuthenticationException('The email address belongs to another identity.');
         }
@@ -48,8 +53,14 @@ class UserProviderRepository implements ProviderRepository
 
         $eloquent = $this->newUserQuery($model)->firstWhere([
             'provider_name' => $driver,
-            'provider_id' => $user->getId(),
-        ]) ?? (new $model)->forceFill([
+            'provider_id' => $providerId,
+        ]);
+
+        if ($eloquent && ($eloquent->provider_name !== $driver || (string) $eloquent->provider_id !== $providerId)) {
+            throw new AuthenticationException('The provider identity does not exactly match the existing account.');
+        }
+
+        $eloquent ??= (new $model)->forceFill([
             'email' => $user->email,
             'provider_name' => $driver,
         ]);
@@ -58,7 +69,7 @@ class UserProviderRepository implements ProviderRepository
             array_merge([
                 'email' => $user->getEmail(),
                 'name' => $user->name,
-                'provider_id' => $user->id,
+                'provider_id' => $providerId,
                 'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
             ],
                 $this->isUsingSoftDeletes($model)

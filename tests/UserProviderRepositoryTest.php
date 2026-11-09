@@ -4,7 +4,9 @@ use DirectoryTree\Bartender\Facades\Bartender;
 use DirectoryTree\Bartender\Tests\User;
 use DirectoryTree\Bartender\UserProviderRepository;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 beforeEach(fn () => Bartender::setUserModel(User::class));
@@ -177,4 +179,118 @@ it('rejects a changed provider email that belongs to another account', function 
         ->toThrow(AuthenticationException::class);
     expect($account->fresh()->email)->toBe('original@example.com')
         ->and($other->fresh()->provider_id)->toBe('456');
+});
+
+it('rejects missing provider IDs without modifying or creating accounts', function ($id, bool $existing) {
+    if ($existing) {
+        User::create([
+            'provider_name' => 'foo', 'provider_id' => $id, 'name' => 'Original',
+            'email' => 'original@example.com', 'password' => 'password',
+            'provider_access_token' => 'original-token',
+        ]);
+    }
+
+    $identity = (new SocialiteUser)->map([
+        'id' => $id, 'name' => 'Incoming', 'email' => 'unused@example.com',
+    ]);
+    $identity->token = 'incoming-token';
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeTrue();
+    expect(fn () => $repository->updateOrCreate('foo', $identity))
+        ->toThrow(AuthenticationException::class);
+    expect(User::count())->toBe($existing ? 1 : 0);
+
+    if ($existing) {
+        expect(User::first()->email)->toBe('original@example.com')
+            ->and(User::first()->name)->toBe('Original')
+            ->and(User::first()->provider_access_token)->toBe('original-token');
+    }
+})->with([null, '', '   '])->with([true, false]);
+
+it('accepts zero as a provider ID', function ($id) {
+    $identity = (new SocialiteUser)->map([
+        'id' => $id, 'name' => 'Zero', 'email' => 'zero@example.com',
+    ]);
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeFalse();
+    $created = $repository->updateOrCreate('foo', $identity);
+    $updated = $repository->updateOrCreate('foo', $identity);
+
+    expect((string) $created->provider_id)->toBe('0')
+        ->and($updated->id)->toBe($created->id)
+        ->and(User::count())->toBe(1);
+})->with([0, '0']);
+
+it('rejects inexact identities on case insensitive columns', function (string $storedDriver, string $driver, string $storedId, string $id, bool $sameEmail) {
+    Schema::drop('users');
+    DB::statement('CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        provider_name TEXT COLLATE NOCASE,
+        provider_id TEXT COLLATE NOCASE,
+        name TEXT, email TEXT UNIQUE, password TEXT,
+        provider_access_token TEXT, provider_refresh_token TEXT,
+        email_verified_at TEXT, created_at TEXT, updated_at TEXT
+    )');
+    DB::statement('CREATE UNIQUE INDEX users_provider_id_provider_name_unique ON users (provider_id, provider_name)');
+
+    $account = User::create([
+        'provider_name' => $storedDriver, 'provider_id' => $storedId,
+        'name' => 'Original', 'email' => 'original@example.com', 'password' => 'password',
+        'provider_access_token' => 'original-token', 'provider_refresh_token' => 'original-refresh',
+    ]);
+    $identity = (new SocialiteUser)->map([
+        'id' => $id, 'name' => 'Incoming',
+        'email' => $sameEmail ? 'original@example.com' : 'unused@example.com',
+    ]);
+    $identity->token = 'incoming-token';
+    $identity->refreshToken = 'incoming-refresh';
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists($driver, $identity))->toBe($sameEmail);
+    expect(fn () => $repository->updateOrCreate($driver, $identity))
+        ->toThrow(AuthenticationException::class);
+    expect($account->fresh()->provider_id)->toBe($storedId)
+        ->and($account->fresh()->provider_name)->toBe($storedDriver)
+        ->and($account->fresh()->name)->toBe('Original')
+        ->and($account->fresh()->email)->toBe('original@example.com')
+        ->and($account->fresh()->provider_access_token)->toBe('original-token')
+        ->and($account->fresh()->provider_refresh_token)->toBe('original-refresh')
+        ->and(User::count())->toBe(1);
+})->with([
+    'provider ID differs in case' => ['foo', 'foo', 'ABC', 'abc'],
+    'provider name differs in case' => ['FOO', 'foo', '123', '123'],
+])->with([true, false]);
+
+it('updates exact identities on case insensitive columns', function () {
+    Schema::drop('users');
+    DB::statement('CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        provider_name TEXT COLLATE NOCASE,
+        provider_id TEXT COLLATE NOCASE,
+        name TEXT, email TEXT UNIQUE, password TEXT,
+        provider_access_token TEXT, provider_refresh_token TEXT,
+        email_verified_at TEXT, created_at TEXT, updated_at TEXT
+    )');
+    DB::statement('CREATE UNIQUE INDEX users_provider_id_provider_name_unique ON users (provider_id, provider_name)');
+
+    $account = User::create([
+        'provider_name' => 'foo', 'provider_id' => 'ABC',
+        'name' => 'Original', 'email' => 'original@example.com', 'password' => 'password',
+        'provider_refresh_token' => 'original-refresh',
+    ]);
+    $identity = (new SocialiteUser)->map([
+        'id' => 'ABC', 'name' => 'Updated', 'email' => 'updated@example.com',
+    ]);
+    $identity->token = 'updated-token';
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeFalse();
+    expect($repository->updateOrCreate('foo', $identity)->id)->toBe($account->id);
+    expect($repository->exists('foo', $identity))->toBeFalse();
+    expect($account->fresh()->email)->toBe('updated@example.com')
+        ->and($account->fresh()->provider_access_token)->toBe('updated-token')
+        ->and($account->fresh()->provider_refresh_token)->toBe('original-refresh')
+        ->and(User::count())->toBe(1);
 });
