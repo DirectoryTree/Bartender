@@ -22,7 +22,7 @@ class UserProviderRepository implements ProviderRepository
         $providerId = (string) $user->getId();
 
         if (blank($providerId)) {
-            return true;
+            throw new AuthenticationException('The provider did not return a user ID.');
         }
 
         return $this->newUserQuery(Bartender::getUserModel())
@@ -40,10 +40,6 @@ class UserProviderRepository implements ProviderRepository
     public function updateOrCreate(string $driver, SocialiteUser $user): Authenticatable
     {
         $providerId = (string) $user->getId();
-
-        if (blank($providerId)) {
-            throw new AuthenticationException('The provider did not return a user ID.');
-        }
 
         if ($this->exists($driver, $user)) {
             throw new AuthenticationException('The email address belongs to another identity.');

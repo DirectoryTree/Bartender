@@ -33,11 +33,13 @@ class UserProviderHandler implements ProviderHandler
         try {
             /** @var SocialiteUser $socialite */
             $socialite = $provider->user();
+
+            $exists = $this->users->exists($driver, $socialite);
         } catch (Exception $e) {
             return $this->redirector->unableToAuthenticateUser($e, $driver);
         }
 
-        if ($this->users->exists($driver, $socialite)) {
+        if ($exists) {
             return $this->redirector->userAlreadyExists($socialite, $driver);
         }
 
