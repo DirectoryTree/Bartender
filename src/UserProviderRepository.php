@@ -26,7 +26,7 @@ class UserProviderRepository implements ProviderRepository
         }
 
         if ($this->isDeleted($driver, $user)) {
-            return true;
+            throw new AuthenticationException('This account has been deleted and cannot be restored.');
         }
 
         return $this->newUserQuery(Bartender::getUserModel())
@@ -50,6 +50,8 @@ class UserProviderRepository implements ProviderRepository
         }
 
         $model = Bartender::getUserModel();
+        $usesSoftDeletes = $this->isUsingSoftDeletes($model);
+        $restoreDeletedUsers = Bartender::shouldRestoreSoftDeletedUsers();
 
         $eloquent = $this->newUserQuery($model)->firstWhere([
             'provider_name' => $driver,
@@ -58,6 +60,10 @@ class UserProviderRepository implements ProviderRepository
 
         if ($eloquent && ($eloquent->provider_name !== $driver || (string) $eloquent->provider_id !== $providerId)) {
             throw new AuthenticationException('The provider identity does not exactly match the existing account.');
+        }
+
+        if ($eloquent && $usesSoftDeletes && ! $restoreDeletedUsers && $eloquent->trashed()) {
+            throw new AuthenticationException('This account has been deleted and cannot be restored.');
         }
 
         $eloquent ??= (new $model)->forceFill([
@@ -72,8 +78,8 @@ class UserProviderRepository implements ProviderRepository
                 'provider_id' => $providerId,
                 'password' => $eloquent->password ?? $this->hash($this->getNewPassword()),
             ],
-                $this->isUsingSoftDeletes($model)
-                    ? ['deleted_at' => null]
+                $usesSoftDeletes && $restoreDeletedUsers
+                    ? [$eloquent->getDeletedAtColumn() => null]
                     : [],
                 $this->isVerifyingEmails($model)
                     ? ['email_verified_at' => $eloquent->email_verified_at ?? now()]

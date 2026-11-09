@@ -194,7 +194,10 @@ Bartender::restoreSoftDeletedUsers(false);
 
 Automatic restoration remains enabled by default. When disabled, Bartender rejects
 a deleted account by its provider identity or email address, including when the
-provider reports a different email. You can also [swap out the repository](#user-creation--updating)
+provider reports a different email. Rejected deleted accounts raise an
+`AuthenticationException` rather than being reported as email conflicts. The account
+is checked again before updating, and its deletion timestamp is only cleared when
+restoration is enabled. You can also [swap out the repository](#user-creation--updating)
 for a custom policy.
 
 ### Email Verification
