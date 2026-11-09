@@ -21,7 +21,7 @@ class UserProviderRepository implements ProviderRepository
     {
         $providerId = (string) $user->getId();
 
-        if (trim($providerId) === '' || $this->isDeleted($driver, $user)) {
+        if (blank($providerId) || $this->isDeleted($driver, $user)) {
             return true;
         }
 
@@ -41,7 +41,7 @@ class UserProviderRepository implements ProviderRepository
     {
         $providerId = (string) $user->getId();
 
-        if (trim($providerId) === '') {
+        if (blank($providerId)) {
             throw new AuthenticationException('The provider did not return a user ID.');
         }
 
