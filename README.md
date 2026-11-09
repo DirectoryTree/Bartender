@@ -175,6 +175,11 @@ profile information are updated when the provider reports a change. An email add
 already belonging to another identity is rejected; Bartender does not automatically
 link accounts by email.
 
+Provider IDs must be non-empty. Provider names and IDs are compared exactly before
+an existing account is updated, even when the database uses case-insensitive comparisons.
+Case-only conflicts are rejected; applications that need to store both identities must
+configure case-sensitive provider columns and uniqueness constraints themselves.
+
 ### Soft Deletes
 
 With the default `UserProviderRepository`, soft-deleted users will be restored if they log in with their provider.
