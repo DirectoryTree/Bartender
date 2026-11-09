@@ -1,6 +1,8 @@
 <?php
 
 use DirectoryTree\Bartender\Facades\Bartender;
+use DirectoryTree\Bartender\Tests\EnumUser;
+use DirectoryTree\Bartender\Tests\ProviderName;
 use DirectoryTree\Bartender\Tests\User;
 use DirectoryTree\Bartender\UserProviderRepository;
 use Illuminate\Auth\AuthenticationException;
@@ -340,3 +342,64 @@ it('uses Socialite accessors when public profile properties differ', function ()
         ->and($result->name)->toBe('Updated Name')
         ->and(User::count())->toBe(1);
 });
+
+it('updates the same identity when the provider name is enum cast', function (string $email) {
+    Bartender::setUserModel(EnumUser::class);
+
+    $account = EnumUser::create([
+        'provider_name' => ProviderName::Foo,
+        'provider_id' => '123',
+        'name' => 'Original',
+        'email' => 'original@example.com',
+        'password' => 'password',
+        'provider_refresh_token' => 'original-refresh',
+    ]);
+
+    $identity = (new SocialiteUser)->map([
+        'id' => '123', 'name' => 'Updated', 'email' => $email,
+    ]);
+    $identity->token = 'updated-token';
+
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeFalse();
+
+    $result = $repository->updateOrCreate('foo', $identity);
+
+    expect($result->id)->toBe($account->id)
+        ->and($result->provider_name)->toBe(ProviderName::Foo)
+        ->and($account->fresh()->email)->toBe($email)
+        ->and($account->fresh()->provider_access_token)->toBe('updated-token')
+        ->and($account->fresh()->provider_refresh_token)->toBe('original-refresh')
+        ->and(EnumUser::count())->toBe(1);
+})->with(['original@example.com', 'changed@example.com']);
+
+it('rejects conflicting identities when the provider name is enum cast', function (string $driver, string $id) {
+    Bartender::setUserModel(EnumUser::class);
+
+    $account = EnumUser::create([
+        'provider_name' => ProviderName::Foo,
+        'provider_id' => '123',
+        'name' => 'Original',
+        'email' => 'original@example.com',
+        'password' => 'password',
+        'provider_access_token' => 'original-token',
+    ]);
+
+    $identity = (new SocialiteUser)->map([
+        'id' => $id, 'name' => 'Incoming', 'email' => 'original@example.com',
+    ]);
+    $identity->token = 'incoming-token';
+
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists($driver, $identity))->toBeTrue();
+    expect(fn () => $repository->updateOrCreate($driver, $identity))->toThrow(AuthenticationException::class);
+    expect($account->fresh()->provider_name)->toBe(ProviderName::Foo)
+        ->and($account->fresh()->provider_id)->toBe('123')
+        ->and($account->fresh()->provider_access_token)->toBe('original-token')
+        ->and(EnumUser::count())->toBe(1);
+})->with([
+    'different provider' => ['bar', '123'],
+    'different provider ID' => ['foo', '456'],
+]);
