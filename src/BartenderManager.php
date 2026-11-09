@@ -26,11 +26,11 @@ class BartenderManager
     protected bool $restoreSoftDeletedUsers = true;
 
     /**
-     * Configure automatic restoration during provider sign-in.
+     * Prevent automatic restoration during provider sign-in.
      */
-    public function restoreSoftDeletedUsers(bool $restore = true): void
+    public function dontRestoreSoftDeletedUsers(bool $dontRestore = true): void
     {
-        $this->restoreSoftDeletedUsers = $restore;
+        $this->restoreSoftDeletedUsers = ! $dontRestore;
     }
 
     /**

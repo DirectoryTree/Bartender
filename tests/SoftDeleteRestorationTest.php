@@ -19,7 +19,7 @@ beforeEach(function () {
         $table->softDeletes();
     });
     Bartender::setUserModel(SoftDeletingUser::class);
-    Bartender::restoreSoftDeletedUsers();
+    Bartender::dontRestoreSoftDeletedUsers(false);
 });
 
 it('preserves automatic restoration by default', function (string $email) {
@@ -43,7 +43,7 @@ it('rejects a deleted account even when its email or provider identity changes',
         'provider_name' => 'foo', 'provider_id' => '123',
     ]);
     $account->delete();
-    Bartender::restoreSoftDeletedUsers(false);
+    Bartender::dontRestoreSoftDeletedUsers();
     $identity = (new SocialiteUser)->map(['id' => $id, 'name' => 'Person', 'email' => $email]);
     $repository = new UserProviderRepository;
 
@@ -59,7 +59,7 @@ it('rejects a deleted account even when its email or provider identity changes',
 ]);
 
 it('allows active accounts and models without soft deletes when restoration is disabled', function () {
-    Bartender::restoreSoftDeletedUsers(false);
+    Bartender::dontRestoreSoftDeletedUsers();
     $account = SoftDeletingUser::create([
         'name' => 'Person', 'email' => 'person@example.com', 'password' => 'password',
         'provider_name' => 'foo', 'provider_id' => '123',
@@ -74,7 +74,7 @@ it('allows active accounts and models without soft deletes when restoration is d
 });
 
 it('allows an active identity to change email without matching unrelated deleted accounts', function (string $deletedDriver, string $deletedId) {
-    Bartender::restoreSoftDeletedUsers(false);
+    Bartender::dontRestoreSoftDeletedUsers();
     $account = SoftDeletingUser::create([
         'name' => 'Active', 'email' => 'active@example.com', 'password' => 'password',
         'provider_name' => 'foo', 'provider_id' => '123',
@@ -101,7 +101,7 @@ it('allows an active identity to change email without matching unrelated deleted
 ]);
 
 it('rejects email conflicts without restoring the matching deleted identity', function (bool $restore) {
-    Bartender::restoreSoftDeletedUsers($restore);
+    Bartender::dontRestoreSoftDeletedUsers(! $restore);
     $active = SoftDeletingUser::create([
         'name' => 'Active', 'email' => 'taken@example.com', 'password' => 'password',
         'provider_name' => 'foo', 'provider_id' => '456',
@@ -142,7 +142,7 @@ it('respects a custom soft delete column when matching changed emails', function
         public const DELETED_AT = 'archived_at';
     };
     Bartender::setUserModel($model::class);
-    Bartender::restoreSoftDeletedUsers(false);
+    Bartender::dontRestoreSoftDeletedUsers();
     $account = $model::create([
         'name' => 'Deleted', 'email' => 'old@example.com', 'password' => 'password',
         'provider_name' => 'foo', 'provider_id' => '123',
@@ -160,7 +160,7 @@ it('respects a custom soft delete column when matching changed emails', function
     expect($account->fresh()->trashed())->toBeTrue()
         ->and($account->fresh()->email)->toBe('old@example.com');
 
-    Bartender::restoreSoftDeletedUsers();
+    Bartender::dontRestoreSoftDeletedUsers(false);
 
     expect($repository->exists('foo', $identity))->toBeFalse();
     expect($repository->updateOrCreate('foo', $identity)->id)->toBe($account->id);
@@ -169,7 +169,7 @@ it('respects a custom soft delete column when matching changed emails', function
 });
 
 it('rechecks deletion when it occurs between eligibility and account lookup', function (bool $restore) {
-    Bartender::restoreSoftDeletedUsers($restore);
+    Bartender::dontRestoreSoftDeletedUsers(! $restore);
     $account = SoftDeletingUser::create([
         'name' => 'Original', 'email' => 'original@example.com', 'password' => 'password',
         'provider_name' => 'foo', 'provider_id' => '123',
@@ -211,7 +211,7 @@ it('rechecks deletion when it occurs between eligibility and account lookup', fu
 })->with([true, false]);
 
 it('reports deleted identities as authentication failures instead of email conflicts', function (string $email) {
-    Bartender::restoreSoftDeletedUsers(false);
+    Bartender::dontRestoreSoftDeletedUsers();
     $account = SoftDeletingUser::create([
         'name' => 'Deleted', 'email' => 'old@example.com', 'password' => 'password',
         'provider_name' => 'foo', 'provider_id' => '123',

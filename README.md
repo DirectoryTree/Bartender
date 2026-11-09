@@ -189,10 +189,14 @@ To prevent provider sign-in from restoring or recreating a soft-deleted account,
 restoration in your service provider:
 
 ```php
-Bartender::restoreSoftDeletedUsers(false);
+Bartender::dontRestoreSoftDeletedUsers();
 ```
 
-Automatic restoration remains enabled by default. When disabled, Bartender rejects
+Automatic restoration remains enabled by default. To explicitly allow restoration again,
+call `Bartender::dontRestoreSoftDeletedUsers(false)`. You can inspect the current policy
+with `Bartender::shouldRestoreSoftDeletedUsers()`.
+
+When restoration is disabled, Bartender rejects
 a deleted account by its provider identity or email address, including when the
 provider reports a different email. Rejected deleted accounts raise an
 `AuthenticationException` rather than being reported as email conflicts. The account
