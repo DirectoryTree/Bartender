@@ -105,7 +105,7 @@ class UserProviderRepository implements ProviderRepository
                 $query->where('email', $user->getEmail())
                     ->orWhere(function (Builder $query) use ($driver, $user) {
                         $query->where('provider_name', $driver)
-                            ->where('provider_id', $user->getId());
+                            ->where('provider_id', (string) $user->getId());
                     });
             })
             ->exists();
