@@ -34,7 +34,7 @@ class UserProviderRepository implements ProviderRepository
             ->get(['provider_name', 'provider_id'])
             ->contains(fn ($account) => (
                 $account->getRawOriginal('provider_name') !== $driver
-                || (string) $account->provider_id !== $providerId
+                || (string) $account->getRawOriginal('provider_id') !== $providerId
             ));
     }
 
@@ -58,7 +58,7 @@ class UserProviderRepository implements ProviderRepository
             'provider_id' => $providerId,
         ]);
 
-        if ($eloquent && ($eloquent->getRawOriginal('provider_name') !== $driver || (string) $eloquent->provider_id !== $providerId)) {
+        if ($eloquent && ($eloquent->getRawOriginal('provider_name') !== $driver || (string) $eloquent->getRawOriginal('provider_id') !== $providerId)) {
             throw new AuthenticationException('The provider identity does not exactly match the existing account.');
         }
 

@@ -1,7 +1,10 @@
 <?php
 
 use DirectoryTree\Bartender\Facades\Bartender;
+use DirectoryTree\Bartender\Tests\EnumProviderIdUser;
 use DirectoryTree\Bartender\Tests\EnumUser;
+use DirectoryTree\Bartender\Tests\IntegerProviderIdUser;
+use DirectoryTree\Bartender\Tests\ProviderId;
 use DirectoryTree\Bartender\Tests\ProviderName;
 use DirectoryTree\Bartender\Tests\User;
 use DirectoryTree\Bartender\UserProviderRepository;
@@ -402,4 +405,69 @@ it('rejects conflicting identities when the provider name is enum cast', functio
 })->with([
     'different provider' => ['bar', '123'],
     'different provider ID' => ['foo', '456'],
+]);
+
+it('updates exact identities without applying provider ID casts to comparisons', function (string $model, $castId, string $email) {
+    Bartender::setUserModel($model);
+
+    $account = $model::create([
+        'provider_name' => 'foo',
+        'provider_id' => '00123',
+        'name' => 'Original',
+        'email' => 'original@example.com',
+        'password' => 'password',
+        'provider_refresh_token' => 'original-refresh',
+    ]);
+
+    $identity = (new SocialiteUser)->map([
+        'id' => '00123', 'name' => 'Updated', 'email' => $email,
+    ]);
+    $identity->token = 'updated-token';
+
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeFalse();
+
+    $result = $repository->updateOrCreate('foo', $identity);
+
+    expect($result->id)->toBe($account->id)
+        ->and($result->provider_id)->toBe($castId)
+        ->and($account->fresh()->getRawOriginal('provider_id'))->toBe('00123')
+        ->and($account->fresh()->email)->toBe($email)
+        ->and($account->fresh()->provider_access_token)->toBe('updated-token')
+        ->and($account->fresh()->provider_refresh_token)->toBe('original-refresh')
+        ->and($model::count())->toBe(1);
+})->with([
+    'enum cast' => [EnumProviderIdUser::class, ProviderId::Original],
+    'integer cast' => [IntegerProviderIdUser::class, 123],
+])->with(['original@example.com', 'changed@example.com']);
+
+it('rejects conflicting identities without applying provider ID casts to comparisons', function (string $model, string $id) {
+    Bartender::setUserModel($model);
+
+    $account = $model::create([
+        'provider_name' => 'foo',
+        'provider_id' => '00123',
+        'name' => 'Original',
+        'email' => 'original@example.com',
+        'password' => 'password',
+        'provider_access_token' => 'original-token',
+    ]);
+
+    $identity = (new SocialiteUser)->map([
+        'id' => $id, 'name' => 'Incoming', 'email' => 'original@example.com',
+    ]);
+    $identity->token = 'incoming-token';
+
+    $repository = new UserProviderRepository;
+
+    expect($repository->exists('foo', $identity))->toBeTrue();
+    expect(fn () => $repository->updateOrCreate('foo', $identity))->toThrow(AuthenticationException::class);
+    expect($account->fresh()->getRawOriginal('provider_id'))->toBe('00123')
+        ->and($account->fresh()->name)->toBe('Original')
+        ->and($account->fresh()->provider_access_token)->toBe('original-token')
+        ->and($model::count())->toBe(1);
+})->with([
+    'different enum ID' => [EnumProviderIdUser::class, '00456'],
+    'integer cast conceals leading zeros' => [IntegerProviderIdUser::class, '123'],
 ]);
